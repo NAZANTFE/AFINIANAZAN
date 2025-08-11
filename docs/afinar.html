@@ -1,221 +1,144 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Afinar - AfinIA</title>
-  <link rel="stylesheet" href="afinar.css" />
+  <link rel="stylesheet" href="afinar.css"/>
   <style>
-    /* Aseguramos el centrado del logo y el comportamiento del chat
-       sin depender de que ya esté en tu CSS */
-    .logo { display:flex; justify-content:center; margin: 16px 0 8px; }
-    .logo-afinia { width: 120px; height: auto; display:block; }
-
-    .chat-afinia { display:flex; flex-direction:column; gap:10px; }
-    #mensajes-chat {
-      display:flex; flex-direction:column; gap:8px;
-      max-height: 420px; overflow-y:auto; padding: 4px;
-    }
-    .mensaje-bot, .mensaje-usuario {
-      padding:10px 14px; border-radius:16px; max-width:85%;
-      font-size:15px; line-height:1.4;
-      word-wrap: break-word; white-space: pre-wrap;
-    }
-    .mensaje-bot   { background:#fce6ec; color:#444; align-self:flex-start; }
-    .mensaje-usuario { background:#f78ca2; color:#fff; align-self:flex-end; text-align:right; }
-
-    .input-chat { display:flex; gap:10px; }
-    .input-chat input {
-      flex:1; padding:10px; border-radius:999px; border:1px solid #ccc; font-size:15px;
-    }
-    .input-chat button {
-      padding:10px 20px; border-radius:999px; background:#f78ca2; color:#fff;
-      border:none; font-weight:bold; cursor:pointer;
-    }
-
-    /* Barras: si empiezan en 0 que no se vean llenas */
-    .barra-contenedor { background:#eee; border-radius:999px; overflow:hidden; height:22px; display:flex; align-items:center; }
-    .barra { height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; font-weight:bold; }
+    /* refuerzo rápido por si tu CSS no lo tiene */
+    .mensajes-chat{max-height:420px;overflow-y:auto}
+    .mensaje-bot,.mensaje-usuario{padding:10px 14px;border-radius:16px;margin-bottom:8px;max-width:85%;font-size:15px;line-height:1.4}
+    .mensaje-bot{background:#fce6ec;color:#444;align-self:flex-start}
+    .mensaje-usuario{background:#f78ca2;color:#fff;align-self:flex-end}
+    .barra{height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-weight:bold}
   </style>
 </head>
 <body>
   <div class="contenedor-afinar">
-
-    <!-- LOGO -->
-    <div class="logo">
-      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
+    <div class="logo" style="display:flex;justify-content:center;margin:10px 0 6px">
+      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" style="width:120px;height:auto"/>
     </div>
 
-    <!-- CHAT AFINIA -->
-    <div class="chat-afinia">
-      <div class="mensajes-chat" id="mensajes-chat">
-        <div class="mensaje-bot">
-          Hola corazón, gracias por estar aquí. Cuéntame algo sencillo para empezar: ¿qué te ha hecho sonreír hoy?
-        </div>
-      </div>
-      <div class="input-chat">
+    <div class="chat-afinia" style="display:flex;flex-direction:column;background:#fff;padding:16px;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.08);height:540px;overflow:hidden;margin-bottom:16px">
+      <div class="mensajes-chat" id="mensajes-chat" style="display:flex;flex-direction:column"></div>
+      <div class="input-chat" style="display:flex;gap:10px">
         <input type="text" id="entradaUsuario" placeholder="Escribe algo..." />
         <button id="enviarBtn">Enviar</button>
       </div>
     </div>
 
-    <!-- PARÁMETROS -->
     <div class="contenedor-parametros">
       <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA">
         <span class="nombre-parametro">Nivel AfinIA</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
-
-      <div class="parametro-afinar verde" data-nombre="Inteligencia">
-        <span class="nombre-parametro">Inteligencia</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar rojo" data-nombre="Simpatía">
-        <span class="nombre-parametro">Simpatía</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar azul" data-nombre="Comunicación">
-        <span class="nombre-parametro">Comunicación</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar melocoton" data-nombre="Carisma">
-        <span class="nombre-parametro">Carisma</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar lavanda" data-nombre="Creatividad">
-        <span class="nombre-parametro">Creatividad</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos">
-        <span class="nombre-parametro">Resolución de conflictos</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar oliva" data-nombre="Iniciativa">
-        <span class="nombre-parametro">Iniciativa</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar lila" data-nombre="Organización">
-        <span class="nombre-parametro">Organización</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-
-      <div class="parametro-afinar amarillo" data-nombre="Impulso personal">
-        <span class="nombre-parametro">Impulso personal</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
+      <div class="parametro-afinar verde" data-nombre="Inteligencia"><span class="nombre-parametro">Inteligencia</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar rojo" data-nombre="Simpatía"><span class="nombre-parametro">Simpatía</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar azul" data-nombre="Comunicación"><span class="nombre-parametro">Comunicación</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar melocoton" data-nombre="Carisma"><span class="nombre-parametro">Carisma</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar lavanda" data-nombre="Creatividad"><span class="nombre-parametro">Creatividad</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos"><span class="nombre-parametro">Resolución de conflictos</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar oliva" data-nombre="Iniciativa"><span class="nombre-parametro">Iniciativa</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar lila" data-nombre="Organización"><span class="nombre-parametro">Organización</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar amarillo" data-nombre="Impulso personal"><span class="nombre-parametro">Impulso personal</span><div class="barra-contenedor"><div class="barra"></div></div></div>
     </div>
   </div>
 
   <script>
-    // ========= Auto-detección del backend (Local / Railway) =========
-    const RAILWAY_URL = "https://afinianazan-production-99ce.up.railway.app"; // ← cambia si tu subdominio es otro
+    // ——— autodetección local / railway
     const API_BASE = (() => {
-      const h = window.location.hostname;
+      const h = location.hostname;
       if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-      return RAILWAY_URL;
+      return ""; // mismo host en producción (proxy/railway)
     })();
 
-    // ========= Utilidades de UI =========
-    function escribirConEfecto(elemento, texto, velocidad = 25) {
-      let i = 0;
-      elemento.textContent = "";
-      const timer = setInterval(() => {
-        elemento.textContent += texto.charAt(i);
-        i++;
-        if (i >= texto.length) clearInterval(timer);
-        const cont = document.getElementById("mensajes-chat");
-        cont.scrollTop = cont.scrollHeight;
-      }, velocidad);
+    // ——— typing
+    function escribirConEfecto(el, texto, vel=25){
+      let i=0; el.textContent="";
+      const t=setInterval(()=>{ el.textContent+=texto.charAt(i++); if(i>=texto.length) clearInterval(t);
+        const cont=document.getElementById("mensajes-chat"); cont.scrollTop=cont.scrollHeight; }, vel);
+    }
+    function agregarMensaje(texto, clase, typing=false){
+      const cont=document.getElementById("mensajes-chat");
+      const div=document.createElement("div"); div.className=clase; cont.appendChild(div);
+      typing ? escribirConEfecto(div,texto) : (div.textContent=texto);
+      cont.scrollTop=cont.scrollHeight; return div;
     }
 
-    function agregarMensaje(texto, clase, typing = false) {
-      const cont = document.getElementById("mensajes-chat");
-      const msg = document.createElement("div");
-      msg.className = clase;
-      cont.appendChild(msg);
-
-      if (typing) {
-        escribirConEfecto(msg, texto);
-      } else {
-        msg.textContent = texto;
-      }
-      cont.scrollTop = cont.scrollHeight;
-      return msg;
+    // ——— persistencia chat
+    const CHAT_KEY="afinia_chat_v1";
+    function guardarChat(){
+      const arr=[...document.querySelectorAll("#mensajes-chat>div")].map(n=>({clase:n.className,texto:n.textContent}));
+      localStorage.setItem(CHAT_KEY, JSON.stringify(arr));
     }
-
-    // ========= Pintar barras desde backend =========
-    async function cargarYpintarParametros() {
-      try {
-        const r = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
-        const datos = await r.json();
-        document.querySelectorAll('.parametro-afinar').forEach(parametro => {
-          const nombre = parametro.dataset.nombre;
-          const valor = Number(datos[nombre] ?? 0);
-          const barra = parametro.querySelector('.barra');
-          if (barra) {
-            const v = Math.max(0, Math.min(100, valor));
-            barra.style.width = v + '%';
-            barra.textContent = v + '%';
-          }
-        });
-      } catch (err) {
-        console.error("Error al cargar parámetros:", err);
-      }
+    function cargarChat(){
+      try{
+        const arr=JSON.parse(localStorage.getItem(CHAT_KEY)||"[]");
+        arr.forEach(m=>agregarMensaje(m.texto,m.clase,false));
+      }catch{}
     }
+    const _agregarMensaje = agregarMensaje;
+    agregarMensaje = function(txt, cls, typing=false){
+      const el = _agregarMensaje(txt, cls, typing);
+      if (typing) setTimeout(guardarChat, 400); else guardarChat();
+      return el;
+    };
 
-    document.addEventListener("DOMContentLoaded", cargarYpintarParametros);
-
-    // ========= Chat =========
-    const chat = document.getElementById("mensajes-chat");
-    const inputUsuario = document.getElementById("entradaUsuario");
-    const enviarBtn = document.getElementById("enviarBtn");
-
-    async function enviarMensaje() {
-      const mensaje = inputUsuario.value.trim();
-      if (!mensaje) return;
-
-      // Añade el mensaje del usuario (derecha)
-      agregarMensaje(mensaje, "mensaje-usuario");
-      inputUsuario.value = "";
-
-      try {
-        const res = await fetch(`${API_BASE}/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mensaje }),
-        });
-
-        const data = await res.json();
-
-        // Si la API devolvió error
-        if (!res.ok) {
-          agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
-          return;
+    // ——— barras
+    async function cargarYpintarParametros(){
+      const r=await fetch(`${API_BASE}/parametros`);
+      const datos=await r.json();
+      document.querySelectorAll(".parametro-afinar").forEach(p=>{
+        const nombre=p.dataset.nombre;
+        const valor=datos[nombre];
+        const barra=p.querySelector(".barra");
+        if (barra && typeof valor==="number"){
+          barra.style.width = valor + "%";
+          barra.textContent = Math.round(valor) + "%";
         }
+      });
+    }
 
-        // Mostrar respuesta con efecto typing (izquierda)
-        agregarMensaje(data.respuesta || "…", "mensaje-bot", true);
+    // ——— chat
+    const chat= document.getElementById("mensajes-chat");
+    const input= document.getElementById("entradaUsuario");
+    const btn  = document.getElementById("enviarBtn");
+    let enviando=false;
 
-        // Tras la respuesta, refrescamos parámetros
+    async function enviarMensaje(){
+      const mensaje = input.value.trim();
+      if (!mensaje || enviando) return;
+      enviando=true; btn.disabled=true;
+
+      agregarMensaje(mensaje,"mensaje-usuario");
+      input.value="";
+
+      try{
+        const res=await fetch(`${API_BASE}/chat`,{
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ mensaje })
+        });
+        const data=await res.json();
+        agregarMensaje(data.respuesta||"…","mensaje-bot",true);
         await cargarYpintarParametros();
-      } catch (e) {
-        console.error("❌ Error chat:", e);
-        agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
+      }catch(e){
+        agregarMensaje("Lo siento, hubo un error al conectar con la IA.","mensaje-bot");
+      }finally{
+        enviando=false; btn.disabled=false; input.focus();
       }
     }
 
-    enviarBtn.addEventListener("click", enviarMensaje);
-    inputUsuario.addEventListener("keydown", e => {
-      if (e.key === "Enter") enviarMensaje();
+    document.addEventListener("DOMContentLoaded", async ()=>{
+      cargarChat();
+      if (chat.children.length===0){
+        agregarMensaje("Hola corazón, estoy contigo. ¿Qué te ha movido hoy, aunque sea algo pequeñito?", "mensaje-bot", true);
+      }
+      await cargarYpintarParametros();
     });
-  </script>
 
+    btn.addEventListener("click", enviarMensaje);
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") enviarMensaje(); });
+  </script>
 </body>
 </html>
