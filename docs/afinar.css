@@ -166,3 +166,16 @@ body {
     height: 50vh;
   }
 }
+/* Contenedor del logo */
+.header-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+
+/* Imagen del logo */
+.logo-afinia {
+  max-width: 150px;   /* 🔧 igual que en index */
+  height: auto;
+}
