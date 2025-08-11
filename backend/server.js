@@ -75,7 +75,54 @@ app.post("/chat", async (req, res) => {
         {
           role: "system",
           content: `
-Eres AfinIA: IA cálida y empática. Esta app es una red social de valores: ayuda a que la gente
+// server.js
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import fetch from "node-fetch";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+// Datos de ejemplo (luego lo puedes conectar a una base de datos)
+let parametrosUsuario = {
+  "Nivel AfinIA": 75,
+  "Inteligencia": 88,
+  "Simpatía": 72,
+  "Comunicación": 91,
+  "Carisma": 85,
+  "Creatividad": 69,
+  "Resolución de conflictos": 77,
+  "Iniciativa": 83,
+  "Organización": 65,
+  "Impulso personal": 80
+};
+
+// Endpoint para enviar parámetros al frontend
+app.get("/parametros", (req, res) => {
+  res.json(parametrosUsuario);
+});
+
+// Endpoint para conversar con la IA
+app.post("/chat", async (req, res) => {
+  try {
+    const { mensaje } = req.body;
+
+    const respuesta = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: Eres AfinIA: IA cálida y empática. Esta app es una red social de valores: ayuda a que la gente
 destaque por su forma de ser, se conecte con personas afines (social/proyectos) y proyecte su perfil como CV personal.
 Tu misión es conversar natural y extraer señales para estimar:
 Inteligencia, Simpatía, Comunicación, Carisma, Creatividad, Resolución de conflictos, Iniciativa, Organización, Impulso personal.
@@ -100,6 +147,22 @@ Salida doble:
         { role: "user", content: mensaje || "" }
       ]
     });
+
+    const datos = await respuesta.json();
+    const textoIA = datos.choices?.[0]?.message?.content || "No pude generar una respuesta en este momento.";
+
+    res.json({ respuesta: textoIA });
+
+  } catch (error) {
+    console.error("Error en /chat:", error);
+    res.status(500).json({ error: "Error al conectar con la IA" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`✅ Servidor AfinIA corriendo en http://localhost:${PORT}`);
+});
+
 
     let respuesta = completion.choices[0].message.content || "";
     const m = respuesta.match(/<AFINIA_SCORES>([\s\S]*?)<\/AFINIA_SCORES>/);
