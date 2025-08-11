@@ -1,300 +1,209 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f6e0dc;
-  margin: 0;
-  padding: 0;
-  color: #1a1a1a;
+/* ===== Base ===== */
+:root{
+  --rosa:#f6e0dc;
+  --rosa-strong:#f78ca2;
+  --txt:#1a1a1a;
+  --muted:#666;
+  --card:#fff;
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+  --radius:20px;
 }
 
-.contenedor {
-  max-width: 90%;
-  margin: auto;
-  padding: 4vw;
-  box-sizing: border-box;
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  background: var(--rosa);
+  color: var(--txt);
 }
 
-.logo-contenedor {
-  display: flex;
-  justify-content: center;
-  margin-top: 0;
-  margin-bottom: 5vh;
-  position: relative;
-  z-index: 3;
+/* ===== Contenedor ===== */
+.contenedor{
+  width: 100%;
+  max-width: 420px;         /* 📱 tamaño cómodo para móvil */
+  margin: 0 auto;
+  padding: 16px;
 }
 
-.logo-afinia {
-  width: 20vw;
-  max-width: 120px;
-  height: auto;
+/* ===== Logo ===== */
+.logo-contenedor{
+  display:flex;justify-content:center;align-items:center;
+  margin: 4px 0 12px;
 }
+.logo-afinia{ width: 110px; height:auto; }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: -1vh;
-  margin-bottom: 2vh;
-  position: relative;
-  z-index: 2;
+/* ===== Header: buscador + + ===== */
+header{
+  display:flex; align-items:center; gap:10px;
+  margin-bottom: 12px;
 }
-
-.buscador {
-  width: 90%; /* un poco más pequeño que todo el contenedor */
-  max-width: 400px; /* no crece infinito en pantallas grandes */
-  height: 38px; /* más compacto */
+.buscador{
+  flex:1;
+  padding: 12px 14px;
   font-size: 15px;
-  padding: 6px 10px;
-  border-radius: 20px; /* más redondeado y moderno */
-  border: 1px solid #ccc;
-  outline: none;
-  display: block;
-  margin: 0 auto; /* centrado */
+  border: 1.5px solid #ddd;
+  border-radius: 999px;
+  background:#fff;
+  outline:none;
 }
-
-
-.boton-plus {
-  width: 90%;
-  max-width: 52px;
-  height: 13vw;
-  max-height: 52px;
-  font-size: 1.5rem;
-  border: 2px solid #f78ca2;
+.boton-plus{
+  flex:0 0 48px;
+  height:48px; width:48px;
   border-radius: 50%;
-  background-color: white;
-  color: #f78ca2;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  border:1.5px solid var(--rosa-strong);
+  color: var(--rosa-strong);
+  background:#fff;
+  font-weight:700; font-size:24px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  box-shadow: var(--shadow);
 }
 
-.boton-plus:hover {
-  background-color: #fce7ec;
+/* ===== Tarjeta de perfil ===== */
+.perfil{
+  position:relative;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 64px 16px 16px;      /* deja hueco a la foto */
+  margin-top: 48px;             /* distancia respecto al header */
+  text-align:center;
 }
 
-.perfil {
-  background-color: white;
-  border-radius: 20px;
-  padding: 18vh 5vw 4vh;
-  text-align: center;
-  color: #333;
-  position: relative;
-  margin-top: 20vh;
-  z-index: 2;
-}
-
-.foto-perfil-progreso {
-  width: 30vw;
-  max-width: 140px;
-  height: 30vw;
-  max-height: 140px;
+/* Foto circular que flota encima de la tarjeta */
+.foto-perfil-progreso{
+  position:absolute;
+  top: -40px; left: 50%; transform: translateX(-50%);
+  width: 112px; height:112px;   /* 📏 tamaño equilibrado */
   border-radius: 50%;
-  position: absolute;
-  top: -15vw;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 4px;
-  z-index: 4;
+  background: #fff;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: var(--shadow);
+  z-index:2;
 }
-
-.foto-perfil {
-  width: 100%;
-  height: 100%;
+.foto-perfil{
+  width: 100%; height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 12px solid transparent;
+  display:block;
 }
 
-.borde-verde     { border-color: #7ce9b1; }
-.borde-rojo      { border-color: #f7a1a1; }
-.borde-azul      { border-color: #c7e1f6; }
-.borde-dorado    { border-color: #fbeac3; }
-.borde-lavanda   { border-color: #e4c7f5; }
-.borde-coral     { border-color: #f7c8b2; }
-.borde-oliva     { border-color: #d4eac1; }
-.borde-lila      { border-color: #d8ccf1; }
-.borde-amarillo  { border-color: #fff0b3; }
-
-.perfil h2 {
-  margin-top: -2vh;
-  margin-bottom: 1vh;
-  font-size: 2rem;
-  font-weight: 600;
-  color: #1a1a1a;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+/* Texto perfil */
+.info-perfil h2{
+  margin: 8px 0 2px;
+  font-size: 22px; font-weight: 700;
 }
-
-.perfil p {
-  margin: 0.2vh 0;
-  font-size: 1rem;
-  color: #666;
+.info-perfil p{
+  margin: 0 0 2px;
+  font-size: 13.5px; color: var(--muted);
 }
-
-.rol {
+.rol{
   font-style: italic;
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #888;
-  margin-bottom: 1.5vh;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  font-size: 15px;
+  color:#7a7a7a;
+  margin-top: 2px;
 }
 
-.parametros {
-  margin-top: 4vh;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* ===== Parámetros (lista top) ===== */
+.parametros{
+  margin-top: 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  text-align:left;
 }
-
-.parametro {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.parametro{
+  display:flex; align-items:center; gap:10px;
 }
-
-.nombre-parametro {
-  width: 40%;
-  font-weight: bold;
-  font-size: 1rem;
-  color: #1a1a1a;
-  text-align: left;
+.nombre-parametro{
+  flex: 0 0 120px;
+  font-weight: 600; font-size: 14px;
 }
-
-.barra-base {
-  flex: 1;
-  height: 26px;
-  background-color: #f1f1f1;
+.barra-base{
+  flex:1; height: 20px;
+  background:#f1f1f1;
   border-radius: 999px;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  margin-left: 10px;
+  overflow:hidden;
+}
+.barra{
+  height:100%;
+  display:flex; align-items:center; justify-content:flex-end;
+  padding-right:8px;
+  color:#222;
+  font-weight:700; font-size:12px;
 }
 
-.barra {
-  height: 100%;
+/* Colores barras (coinciden con tu paleta) */
+.verde   { background:#7ce9b1; }
+.rojo    { background:#f7a1a1; }
+.azul    { background:#c7e1f6; }
+.dorado  { background:#fbeac3; color:#222;}
+.lavanda { background:#e4c7f5; }
+.coral   { background:#f7c8b2; }
+.oliva   { background:#d4eac1; }
+.lila    { background:#d8ccf1; }
+.amarillo{ background:#fff0b3; color:#333; }
+
+/* ===== Botones ===== */
+.botones-dobles{
+  display:flex; gap:10px; margin-top: 14px;
+}
+.botones-dobles .boton-afinar,
+.botones-dobles .editar{
+  flex:1;
+  padding: 12px 0;
   border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 10px;
-  font-weight: bold;
-  color: white;
-  position: relative;
+  font-weight:700;
+  font-size: 16px;
+  text-align:center;
+  border:none; cursor:pointer;
+}
+.boton-afinar{
+  background: var(--rosa-strong);
+  color:#fff; text-decoration:none; display:block;
+}
+.editar{
+  background:#fff; color:#444; border:1.5px solid #ddd;
 }
 
-.verde    { background-color: #7ce9b1; }
-.rojo     { background-color: #f7a1a1; }
-.azul     { background-color: #c7e1f6; }
-.dorado   { background-color: #fbeac3; }
-.lavanda  { background-color: #e4c7f5; }
-.coral    { background-color: #f7c8b2; }
-.oliva    { background-color: #d4eac1; }
-.lila     { background-color: #d8ccf1; }
-.amarillo { background-color: #fff0b3; }
+/* ===== Galería privada ===== */
+.galeria-privada{
+  margin-top: 16px;
+  display:grid; grid-template-columns: repeat(2, 1fr);
+  gap:10px;
+}
+.foto-extra{
+  width: 100%; aspect-ratio: 1 / 1;
+  background:#fdebed;
+  border-radius: 12px; overflow:hidden; position:relative;
+}
+.foto-extra img{
+  width:100%; height:100%; object-fit:cover;
+  display:block;
+}
+.input-foto{ display:none; }
 
-.porcentaje {
-  font-size: 0.9rem;
-  color: #333;
-  margin-left: 6px;
-  font-weight: bold;
+/* ===== Borde por parámetro top (si lo usas) ===== */
+.borde-verde{ box-shadow:0 0 0 4px #7ce9b1 inset; }
+.borde-rojo{ box-shadow:0 0 0 4px #f7a1a1 inset; }
+.borde-azul{ box-shadow:0 0 0 4px #c7e1f6 inset; }
+.borde-dorado{ box-shadow:0 0 0 4px #fbeac3 inset; }
+.borde-lavanda{ box-shadow:0 0 0 4px #e4c7f5 inset; }
+.borde-coral{ box-shadow:0 0 0 4px #f7c8b2 inset; }
+.borde-oliva{ box-shadow:0 0 0 4px #d4eac1 inset; }
+.borde-lila{ box-shadow:0 0 0 4px #d8ccf1 inset; }
+.borde-amarillo{ box-shadow:0 0 0 4px #fff0b3 inset; }
+
+/* ===== Ajustes para pantallas medianas (tablets) ===== */
+@media (min-width: 480px){
+  .contenedor{ max-width: 520px; }
+  .foto-perfil-progreso{ width: 120px; height:120px; top:-44px; }
+  .info-perfil h2{ font-size:24px; }
 }
 
-.botones-dobles {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 5vh;
-  gap: 10px;
-}
-
-.botones-dobles button,
-.botones-dobles .boton-afinar {
-  width: 50%;
-  padding: 1.2rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  text-align: center;
-}
-
-.boton-afinar {
-  background-color: #f78ca2;
-  color: white;
-  text-decoration: none;
-  display: block;
-}
-
-.editar {
-  background-color: white;
-  color: #4a4a4a;
-  border: 2px solid #dddddd;
-  box-shadow: 0px 1px 3px rgba(0,0,0,0.1);
-}
-
-.galeria-privada {
-  margin-top: 6vh;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  justify-items: center;
-}
-
-.foto-extra {
-  width: 45vw;
-  max-width: 180px;
-  height: 45vw;
-  max-height: 180px;
-  background-color: #fcdede;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-}
-
-.foto-extra img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.8;
-  transition: 0.3s;
-}
-
-.foto-extra:hover img {
-  opacity: 1;
-}
-
-.input-foto {
-  display: none;
-}
-
-/* MEDIA QUERY PARA MÓVILES PEQUEÑOS */
-@media (max-width: 450px) {
-  .logo-afinia {
-    width: 100px;
-  }
-
-  .buscador {
-    font-size: 0.9rem;
-  }
-
-  .rol {
-    font-size: 1.1rem;
-  }
-
-  .barra-base {
-    height: 22px;
-  }
-
-  .porcentaje {
-    font-size: 0.8rem;
-  }
+/* ===== Ajustes para escritorio ===== */
+@media (min-width: 768px){
+  .contenedor{ max-width: 720px; }
+  .perfil{ padding: 72px 20px 20px; }
+  .foto-perfil-progreso{ width: 128px; height:128px; top:-48px; }
+  .nombre-parametro{ flex-basis: 140px; }
 }
