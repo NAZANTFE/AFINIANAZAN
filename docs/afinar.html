@@ -39,10 +39,12 @@
   </div>
 
   <script>
-    const RAILWAY_DOMAIN = "afinianazan-production-99ce.up.railway.app";
-    const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-      ? "http://localhost:3000"
-      : RAILWAY_DOMAIN;
+  const API_BASE = (() => {
+    const h = location.hostname;
+    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:3000';
+    // Si estás en GitHub Pages u otro dominio, usa el dominio público de Railway:
+    return 'afinianazan-production-99ce.up.railway.app'; // <= pon aquí tu URL de Railway
+
 
     function escribirConEfecto(elemento, texto, velocidad = 25) {
       let i = 0;
