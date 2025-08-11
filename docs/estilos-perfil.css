@@ -1,209 +1,219 @@
-/* ===== Base ===== */
 :root{
-  --rosa:#f6e0dc;
-  --rosa-strong:#f78ca2;
-  --txt:#1a1a1a;
-  --muted:#666;
-  --card:#fff;
-  --shadow:0 2px 8px rgba(0,0,0,.08);
-  --radius:20px;
+  --anchura-max: 600px;        /* igual que AFI NAR */
+  --logo-w: 120px;             /* mismo logo en perfil y afinar */
+  --radio: 20px;
+  --rosa: #f6e0dc;
+  --rosa-acento: #f78ca2;
+  --gris-claro: #eee;
+  --texto: #1a1a1a;
 }
 
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
+*{ box-sizing: border-box; }
+
 body{
-  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
   background: var(--rosa);
-  color: var(--txt);
+  margin: 0;
+  color: var(--texto);
 }
 
-/* ===== Contenedor ===== */
 .contenedor{
-  width: 100%;
-  max-width: 420px;         /* 📱 tamaño cómodo para móvil */
+  max-width: var(--anchura-max);
   margin: 0 auto;
-  padding: 16px;
+  padding: 20px;
 }
 
-/* ===== Logo ===== */
+/* LOGO (misma clase y tamaño que en afinar) */
 .logo-contenedor{
-  display:flex;justify-content:center;align-items:center;
-  margin: 4px 0 12px;
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 16px;
 }
-.logo-afinia{ width: 110px; height:auto; }
+.logo-afinia{
+  width: var(--logo-w);
+  height: auto;
+  display: block;
+}
 
-/* ===== Header: buscador + + ===== */
-header{
-  display:flex; align-items:center; gap:10px;
-  margin-bottom: 12px;
+/* Barra superior opcional */
+.barra-superior{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
 }
 .buscador{
-  flex:1;
+  flex: 1;
   padding: 12px 14px;
-  font-size: 15px;
-  border: 1.5px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 999px;
-  background:#fff;
-  outline:none;
+  font-size: 16px;
+  background: #fff;
 }
 .boton-plus{
-  flex:0 0 48px;
-  height:48px; width:48px;
+  width: 48px; height: 48px;
   border-radius: 50%;
-  border:1.5px solid var(--rosa-strong);
-  color: var(--rosa-strong);
-  background:#fff;
-  font-weight:700; font-size:24px;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer;
-  box-shadow: var(--shadow);
-}
-
-/* ===== Tarjeta de perfil ===== */
-.perfil{
-  position:relative;
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 64px 16px 16px;      /* deja hueco a la foto */
-  margin-top: 48px;             /* distancia respecto al header */
-  text-align:center;
-}
-
-/* Foto circular que flota encima de la tarjeta */
-.foto-perfil-progreso{
-  position:absolute;
-  top: -40px; left: 50%; transform: translateX(-50%);
-  width: 112px; height:112px;   /* 📏 tamaño equilibrado */
-  border-radius: 50%;
-  padding: 4px;
+  border: 2px solid var(--rosa-acento);
   background: #fff;
-  display:flex; align-items:center; justify-content:center;
-  box-shadow: var(--shadow);
-  z-index:2;
+  color: var(--rosa-acento);
+  font-size: 22px;
+  font-weight: 800;
+  display: grid; place-items: center;
+  cursor: pointer;
+}
+
+/* Tarjeta perfil */
+.perfil{
+  background: #fff;
+  border-radius: var(--radio);
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+/* Foto */
+.foto-wrapper{
+  display: grid;
+  place-items: center;
+  margin-top: 4px;
 }
 .foto-perfil{
-  width: 100%; height: 100%;
+  width: 128px; height: 128px;
   border-radius: 50%;
   object-fit: cover;
-  display:block;
+  border: 6px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
 
-/* Texto perfil */
+/* Info */
+.info-perfil{
+  text-align: center;
+  margin-top: 8px;
+}
 .info-perfil h2{
   margin: 8px 0 2px;
-  font-size: 22px; font-weight: 700;
+  font-size: 32px;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0,0,0,.15);
 }
-.info-perfil p{
-  margin: 0 0 2px;
-  font-size: 13.5px; color: var(--muted);
+.handle{
+  margin: 0;
+  color: #666;
+  font-size: 15px;
 }
 .rol{
+  margin: 4px 0 8px;
   font-style: italic;
-  font-size: 15px;
-  color:#7a7a7a;
-  margin-top: 2px;
+  font-size: 18px;
+  color: #777;
 }
 
-/* ===== Parámetros (lista top) ===== */
+/* Parámetros */
 .parametros{
-  margin-top: 16px;
-  display: flex; flex-direction: column; gap: 10px;
-  text-align:left;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .parametro{
-  display:flex; align-items:center; gap:10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .nombre-parametro{
-  flex: 0 0 120px;
-  font-weight: 600; font-size: 14px;
+  width: 150px;               /* deja sitio al texto */
+  font-weight: 800;
+  font-size: 18px;
 }
 .barra-base{
-  flex:1; height: 20px;
-  background:#f1f1f1;
+  position: relative;
+  flex: 1;
+  height: 28px;
+  background: var(--gris-claro);
   border-radius: 999px;
-  overflow:hidden;
+  overflow: hidden;
 }
 .barra{
-  height:100%;
-  display:flex; align-items:center; justify-content:flex-end;
-  padding-right:8px;
-  color:#222;
-  font-weight:700; font-size:12px;
+  height: 100%;
+  border-radius: 999px;
+}
+.porcentaje{
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 800;
+  font-size: 14px;
+  color: #333;
+  text-shadow: 0 1px 0 rgba(255,255,255,.7);
+  pointer-events: none;
 }
 
-/* Colores barras (coinciden con tu paleta) */
+/* Colores pastel */
 .verde   { background:#7ce9b1; }
 .rojo    { background:#f7a1a1; }
 .azul    { background:#c7e1f6; }
-.dorado  { background:#fbeac3; color:#222;}
+.dorado  { background:#fbeac3; }
 .lavanda { background:#e4c7f5; }
 .coral   { background:#f7c8b2; }
 .oliva   { background:#d4eac1; }
 .lila    { background:#d8ccf1; }
-.amarillo{ background:#fff0b3; color:#333; }
+.amarillo{ background:#fff0b3; }
 
-/* ===== Botones ===== */
+/* Botones */
 .botones-dobles{
-  display:flex; gap:10px; margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 22px 0 6px;
 }
-.botones-dobles .boton-afinar,
-.botones-dobles .editar{
-  flex:1;
-  padding: 12px 0;
+.boton-afinar, .editar{
   border-radius: 999px;
-  font-weight:700;
+  padding: 14px 18px;
+  font-weight: 800;
   font-size: 16px;
-  text-align:center;
-  border:none; cursor:pointer;
+  text-align: center;
 }
 .boton-afinar{
-  background: var(--rosa-strong);
-  color:#fff; text-decoration:none; display:block;
+  background: var(--rosa-acento);
+  color: #fff;
+  border: none;
+  text-decoration: none;
 }
 .editar{
-  background:#fff; color:#444; border:1.5px solid #ddd;
+  background: #fff;
+  color: #444;
+  border: 2px solid #eee;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
 }
 
-/* ===== Galería privada ===== */
+/* Galería cuadrada y alineada */
 .galeria-privada{
-  margin-top: 16px;
-  display:grid; grid-template-columns: repeat(2, 1fr);
-  gap:10px;
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* móvil */
+  gap: 14px;
 }
 .foto-extra{
-  width: 100%; aspect-ratio: 1 / 1;
-  background:#fdebed;
-  border-radius: 12px; overflow:hidden; position:relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;     /* SIEMPRE cuadrada */
+  border-radius: 16px;
+  background: #fde3e6;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  position: relative;
 }
 .foto-extra img{
-  width:100%; height:100%; object-fit:cover;
-  display:block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: .9;
+  transition: opacity .2s ease;
 }
-.input-foto{ display:none; }
+.foto-extra:hover img{ opacity: 1; }
+.input-foto{ display: none; }
 
-/* ===== Borde por parámetro top (si lo usas) ===== */
-.borde-verde{ box-shadow:0 0 0 4px #7ce9b1 inset; }
-.borde-rojo{ box-shadow:0 0 0 4px #f7a1a1 inset; }
-.borde-azul{ box-shadow:0 0 0 4px #c7e1f6 inset; }
-.borde-dorado{ box-shadow:0 0 0 4px #fbeac3 inset; }
-.borde-lavanda{ box-shadow:0 0 0 4px #e4c7f5 inset; }
-.borde-coral{ box-shadow:0 0 0 4px #f7c8b2 inset; }
-.borde-oliva{ box-shadow:0 0 0 4px #d4eac1 inset; }
-.borde-lila{ box-shadow:0 0 0 4px #d8ccf1 inset; }
-.borde-amarillo{ box-shadow:0 0 0 4px #fff0b3 inset; }
-
-/* ===== Ajustes para pantallas medianas (tablets) ===== */
-@media (min-width: 480px){
-  .contenedor{ max-width: 520px; }
-  .foto-perfil-progreso{ width: 120px; height:120px; top:-44px; }
-  .info-perfil h2{ font-size:24px; }
-}
-
-/* ===== Ajustes para escritorio ===== */
-@media (min-width: 768px){
-  .contenedor{ max-width: 720px; }
-  .perfil{ padding: 72px 20px 20px; }
-  .foto-perfil-progreso{ width: 128px; height:128px; top:-48px; }
-  .nombre-parametro{ flex-basis: 140px; }
+/* 3 columnas en pantallas anchas (opcional) */
+@media (min-width: 700px){
+  .galeria-privada{ grid-template-columns: repeat(3, 1fr); }
 }
