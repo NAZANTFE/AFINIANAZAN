@@ -1,0 +1,17 @@
+{
+  "Inteligencia": {
+    "valorFinal": 70,
+    "media": 10,
+    "interacciones": 1
+  },
+  "Simpatía": {
+    "valorFinal": 65,
+    "media": 9,
+    "interacciones": 1
+  },
+  "Comunicación": {
+    "valorFinal": 75,
+    "media": 8,
+    "interacciones": 1
+  }
+}
