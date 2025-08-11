@@ -58,15 +58,17 @@
   </div>
 
   <script>
-    const RAILWAY_DOMAIN = "https://afinia-production.up.railway.app";
-    const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-      ? "http://localhost:3000"
-      : RAILWAY_DOMAIN;
+    // --- Detecta backend (local o Railway) ---
+    const API_BASE = (() => {
+      const h = location.hostname;
+      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
+      return "https://afinia-production.up.railway.app"; // ← tu backend en Railway
+    })();
 
     async function cargarParametrosDesdeAPI() {
       try {
-        const response = await fetch(`${API_BASE}/parametros`);
-        const datos = await response.json();
+        const res = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
+        const datos = await res.json();
 
         const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
         const top4 = sinNivel.sort((a, b) => b[1] - a[1]).slice(0, 4);
@@ -92,27 +94,29 @@
             <div class="parametro">
               <span class="nombre-parametro">${nombre}</span>
               <div class="barra-base">
-                <div class="barra ${clase}" style="width: ${valor}%">
+                <div class="barra ${clase}" style="width:${valor}%">
                   <span class="porcentaje">${valor}%</span>
                 </div>
               </div>
-            </div>
-          `;
+            </div>`;
         });
 
-        const claseTop = colores[top4[0][0]];
-        const foto = document.querySelector('.foto-perfil');
-        foto.className = `foto-perfil borde-${claseTop}`;
+        if (top4[0]) {
+          const claseTop = colores[top4[0][0]];
+          const foto = document.querySelector('.foto-perfil');
+          if (foto) foto.className = `foto-perfil borde-${claseTop}`;
+        }
       } catch (err) {
         console.error("Error cargando parámetros:", err);
       }
     }
 
+    // --- Galería localStorage ---
     const claveFotos = "fotosPerfil";
     function cargarFoto(input) {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = e => {
           const img = input.parentElement.querySelector('img');
           img.src = e.target.result;
           img.style.opacity = 1;
@@ -138,7 +142,7 @@
       }
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
       cargarFotosGuardadas();
       cargarParametrosDesdeAPI();
     });
