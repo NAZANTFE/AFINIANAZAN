@@ -5,21 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Afinar - AfinIA</title>
   <link rel="stylesheet" href="afinar.css" />
+  <style>
+    /* Aseguramos el centrado del logo y el comportamiento del chat
+       sin depender de que ya esté en tu CSS */
+    .logo { display:flex; justify-content:center; margin: 16px 0 8px; }
+    .logo-afinia { width: 120px; height: auto; display:block; }
+
+    .chat-afinia { display:flex; flex-direction:column; gap:10px; }
+    #mensajes-chat {
+      display:flex; flex-direction:column; gap:8px;
+      max-height: 420px; overflow-y:auto; padding: 4px;
+    }
+    .mensaje-bot, .mensaje-usuario {
+      padding:10px 14px; border-radius:16px; max-width:85%;
+      font-size:15px; line-height:1.4;
+      word-wrap: break-word; white-space: pre-wrap;
+    }
+    .mensaje-bot   { background:#fce6ec; color:#444; align-self:flex-start; }
+    .mensaje-usuario { background:#f78ca2; color:#fff; align-self:flex-end; text-align:right; }
+
+    .input-chat { display:flex; gap:10px; }
+    .input-chat input {
+      flex:1; padding:10px; border-radius:999px; border:1px solid #ccc; font-size:15px;
+    }
+    .input-chat button {
+      padding:10px 20px; border-radius:999px; background:#f78ca2; color:#fff;
+      border:none; font-weight:bold; cursor:pointer;
+    }
+
+    /* Barras: si empiezan en 0 que no se vean llenas */
+    .barra-contenedor { background:#eee; border-radius:999px; overflow:hidden; height:22px; display:flex; align-items:center; }
+    .barra { height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; font-weight:bold; }
+  </style>
 </head>
 <body>
   <div class="contenedor-afinar">
 
-    <!-- LOGO CENTRADO IGUAL QUE EN INDEX -->
-<header class="header-logo">
-  <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
-</header>
-
+    <!-- LOGO -->
+    <div class="logo">
+      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
+    </div>
 
     <!-- CHAT AFINIA -->
     <div class="chat-afinia">
       <div class="mensajes-chat" id="mensajes-chat">
-        <div class="mensaje-bot" id="saludo-inicial">
-          Hola, corazón. Gracias por estar aquí. Cuéntame algo sencillo de tu día y seguimos desde ahí 😌
+        <div class="mensaje-bot">
+          Hola corazón, gracias por estar aquí. Cuéntame algo sencillo para empezar: ¿qué te ha hecho sonreír hoy?
         </div>
       </div>
       <div class="input-chat">
@@ -32,71 +63,73 @@
     <div class="contenedor-parametros">
       <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA">
         <span class="nombre-parametro">Nivel AfinIA</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar verde" data-nombre="Inteligencia">
         <span class="nombre-parametro">Inteligencia</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar rojo" data-nombre="Simpatía">
         <span class="nombre-parametro">Simpatía</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar azul" data-nombre="Comunicación">
         <span class="nombre-parametro">Comunicación</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar melocoton" data-nombre="Carisma">
         <span class="nombre-parametro">Carisma</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar lavanda" data-nombre="Creatividad">
         <span class="nombre-parametro">Creatividad</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar coral" data-nombre="Resolución de conflictos">
         <span class="nombre-parametro">Resolución de conflictos</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar oliva" data-nombre="Iniciativa">
         <span class="nombre-parametro">Iniciativa</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar lila" data-nombre="Organización">
         <span class="nombre-parametro">Organización</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
 
       <div class="parametro-afinar amarillo" data-nombre="Impulso personal">
         <span class="nombre-parametro">Impulso personal</span>
-        <div class="barra-contenedor"><div class="barra">0%</div></div>
+        <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
     </div>
   </div>
 
   <script>
-    // ========= Auto-detección (Local / Railway) =========
+    // ========= Auto-detección del backend (Local / Railway) =========
+    const RAILWAY_URL = "https://afinianazan-production-99ce.up.railway.app"; // ← cambia si tu subdominio es otro
     const API_BASE = (() => {
       const h = window.location.hostname;
       if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-      return "https://afinianazan-production-99ce.up.railway.app"; // 🔗 tu backend en Railway
+      return RAILWAY_URL;
     })();
 
-    // ========= Efecto typing =========
-    function escribirConEfecto(elemento, texto, velocidad = 20) {
+    // ========= Utilidades de UI =========
+    function escribirConEfecto(elemento, texto, velocidad = 25) {
       let i = 0;
       elemento.textContent = "";
-      const id = setInterval(() => {
-        elemento.textContent += texto.charAt(i++);
-        if (i >= texto.length) clearInterval(id);
+      const timer = setInterval(() => {
+        elemento.textContent += texto.charAt(i);
+        i++;
+        if (i >= texto.length) clearInterval(timer);
         const cont = document.getElementById("mensajes-chat");
         cont.scrollTop = cont.scrollHeight;
       }, velocidad);
@@ -107,24 +140,30 @@
       const msg = document.createElement("div");
       msg.className = clase;
       cont.appendChild(msg);
-      typing ? escribirConEfecto(msg, texto) : (msg.textContent = texto);
+
+      if (typing) {
+        escribirConEfecto(msg, texto);
+      } else {
+        msg.textContent = texto;
+      }
       cont.scrollTop = cont.scrollHeight;
       return msg;
     }
 
-    // ========= Pintar barras =========
+    // ========= Pintar barras desde backend =========
     async function cargarYpintarParametros() {
       try {
         const r = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
         const datos = await r.json();
-
-        document.querySelectorAll(".parametro-afinar").forEach(parametro => {
+        document.querySelectorAll('.parametro-afinar').forEach(parametro => {
           const nombre = parametro.dataset.nombre;
-          const barra = parametro.querySelector(".barra");
-          const v = Number(datos[nombre] ?? 0);
-          const valor = Math.max(0, Math.min(100, Math.round(v)));
-          barra.style.width = valor + "%";
-          barra.textContent = valor + "%";
+          const valor = Number(datos[nombre] ?? 0);
+          const barra = parametro.querySelector('.barra');
+          if (barra) {
+            const v = Math.max(0, Math.min(100, valor));
+            barra.style.width = v + '%';
+            barra.textContent = v + '%';
+          }
         });
       } catch (err) {
         console.error("Error al cargar parámetros:", err);
@@ -142,10 +181,7 @@
       const mensaje = inputUsuario.value.trim();
       if (!mensaje) return;
 
-      // Oculta el primer saludo para que no “re-salude”
-      const s = document.getElementById("saludo-inicial");
-      if (s) s.style.display = "none";
-
+      // Añade el mensaje del usuario (derecha)
       agregarMensaje(mensaje, "mensaje-usuario");
       inputUsuario.value = "";
 
@@ -157,12 +193,18 @@
         });
 
         const data = await res.json();
-        if (data?.respuesta) {
-          agregarMensaje(data.respuesta, "mensaje-bot", true);
-          await cargarYpintarParametros(); // refresca barras tras cada turno
-        } else {
+
+        // Si la API devolvió error
+        if (!res.ok) {
           agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
+          return;
         }
+
+        // Mostrar respuesta con efecto typing (izquierda)
+        agregarMensaje(data.respuesta || "…", "mensaje-bot", true);
+
+        // Tras la respuesta, refrescamos parámetros
+        await cargarYpintarParametros();
       } catch (e) {
         console.error("❌ Error chat:", e);
         agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
@@ -174,5 +216,6 @@
       if (e.key === "Enter") enviarMensaje();
     });
   </script>
+
 </body>
 </html>
