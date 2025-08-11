@@ -1,181 +1,142 @@
-/* ==================== GENERAL ==================== */
+/* ======== Estilos generales ======== */
 body {
   margin: 0;
+  padding: 0;
   font-family: "Segoe UI", Tahoma, sans-serif;
-  background-color: #f6e0dc; /* rosa claro oficial AfinIA */
-  display: flex;
-  justify-content: center;
-  padding: 20px;
+  background-color: #f6e0dc; /* Rosa AfinIA oficial */
 }
 
+/* ======== Contenedor principal ======== */
 .contenedor-afinar {
-  width: 100%;
-  max-width: 500px;
+  max-width: 430px; /* Igual que index */
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
-/* ==================== LOGO ==================== */
+/* ======== Logo ======== */
 .logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  align-items: center;
+  margin-top: 12px;
+  margin-bottom: 8px;
 }
 
 .logo-afinia {
-  max-width: 160px;
+  width: 120px; /* Tamaño idéntico al index */
   height: auto;
 }
 
-/* ==================== CHAT ==================== */
+/* ======== Chat ======== */
 .chat-afinia {
-  background-color: white;
-  padding: 16px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  height: 55vh;          /* altura ajustada para no tapar logo */
-  max-height: 65vh;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+}
+
+#mensajes-chat {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-}
-
-.mensajes-chat {
-  flex: 1;
-  min-height: 0;
+  gap: 8px;
+  max-height: 320px;
   overflow-y: auto;
-  padding-right: 6px;
-  scroll-behavior: smooth;
-}
-
-.mensaje-bot, .mensaje-usuario {
-  padding: 10px 14px;
-  border-radius: 16px;
-  margin-bottom: 8px;
-  max-width: 85%;
-  font-size: 15px;
-  line-height: 1.45;
+  padding: 6px;
 }
 
 .mensaje-bot {
-  background-color: #fce6ec;
+  background: #fce6ec;
   color: #444;
+  padding: 10px 14px;
+  border-radius: 16px;
   align-self: flex-start;
+  max-width: 85%;
+  word-wrap: break-word;
 }
 
 .mensaje-usuario {
-  background-color: #f78ca2;
-  color: white;
+  background: #f78ca2;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 16px;
   align-self: flex-end;
+  max-width: 85%;
+  text-align: right;
+  word-wrap: break-word;
 }
 
 .input-chat {
   display: flex;
   gap: 10px;
-  padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
+  margin-top: 8px;
 }
 
 .input-chat input {
   flex: 1;
-  padding: 10px 12px;
+  padding: 10px;
   border-radius: 999px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   font-size: 15px;
-  outline: none;
 }
 
 .input-chat button {
-  padding: 10px 18px;
+  padding: 10px 20px;
   border-radius: 999px;
-  background-color: #f78ca2;
-  color: white;
+  background: #f78ca2;
+  color: #fff;
   border: none;
-  font-weight: 600;
+  font-weight: bold;
   cursor: pointer;
 }
 
-/* ==================== PARÁMETROS ==================== */
+/* ======== Parámetros ======== */
 .contenedor-parametros {
-  background-color: white;
-  padding: 16px;
-  border-radius: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 12px;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
 }
 
 .parametro-afinar {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .nombre-parametro {
   display: block;
-  margin-bottom: 4px;
+  font-weight: bold;
   font-size: 14px;
-  font-weight: 600;
-  color: #444;
+  margin-bottom: 4px;
 }
 
 .barra-contenedor {
-  background-color: #f0f0f0;
-  border-radius: 8px;
+  background: #eee;
+  border-radius: 999px;
   overflow: hidden;
-  height: 20px;
-  position: relative;
+  height: 22px;
+  display: flex;
+  align-items: center;
 }
 
 .barra {
-  width: 0;              /* 🔧 clave: empieza en 0 */
-  min-width: 0;          /* evita que “empuje” por contenido */
   height: 100%;
-  border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   padding-right: 10px;
-  color: #000;
-  text-shadow: 0 1px 2px rgba(255,255,255,0.5);
-  font-size: 13px;
   font-weight: bold;
-  flex: 0 0 auto;        /* 🔧 que no se estire */
-  box-sizing: border-box;
+  font-size: 13px;
+  color: #444; /* visible incluso si la barra es pequeña */
 }
 
-
-/* ==================== COLORES PARÁMETROS ==================== */
-.rosa .barra { background-color: #f78ca2; }
-.verde .barra { background-color: #a4eac8; }
-.rojo .barra { background-color: #f7a1a1; }
-.azul .barra { background-color: #c7e1f6; }
-.melocoton .barra { background-color: #fbeac3; }
-.lavanda .barra { background-color: #e4c7f5; }
-.coral .barra { background-color: #f7c8b2; }
-.oliva .barra { background-color: #d4eac1; }
-.lila .barra { background-color: #d8ccf1; }
-.amarillo .barra { background-color: #fff0b3; }
-
-/* ==================== RESPONSIVE ==================== */
-@media (max-width: 600px) {
-  .contenedor-afinar {
-    padding: 0 10px;
-  }
-
-  .logo-afinia {
-    max-width: 130px;
-  }
-
-  .chat-afinia {
-    height: 50vh;
-  }
-}
-/* Contenedor del logo */
-.header-logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 0;
-}
-
-/* Imagen del logo */
-.logo-afinia {
-  max-width: 150px;   /* 🔧 igual que en index */
-  height: auto;
-}
+/* ======== Colores de barras ======== */
+.rosa .barra        { background-color: #f78ca2; color: #fff; }
+.verde .barra       { background-color: #a4eac8; }
+.rojo .barra        { background-color: #f7a1a1; }
+.azul .barra        { background-color: #c7e1f6; }
+.melocoton .barra   { background-color: #fbeac3; }
+.lavanda .barra     { background-color: #e4c7f5; }
+.coral .barra       { background-color: #f7c8b2; }
+.oliva .barra       { background-color: #d4eac1; }
+.lila .barra        { background-color: #d8ccf1; }
+.amarillo .barra    { background-color: #fff0b3; }
