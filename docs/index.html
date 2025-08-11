@@ -64,91 +64,96 @@
   </div>
 
   <script>
-    // ============ Auto-detectar backend (local / Railway) ============
-    const API_BASE = (() => {
-      const h = location.hostname;
-      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-      // si front y back están en dominios distintos, pon aquí tu backend:
-      // return "https://TU-SUBDOMINIO.up.railway.app";
-      return ""; // mismo host (solo si sirves front y back juntos)
-    })();
+  // ===== Backend: local en dev, Railway en producción =====
+  const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:3000"
+    : "https://afinianazan-production-99ce.up.railway.app"; // <- TU Railway (HTTPS)
 
-    // ============ Pintar parámetros con % SIEMPRE legible ============
-    const COLORES = {
-      "Inteligencia": "verde",
-      "Simpatía": "rojo",
-      "Comunicación": "azul",
-      "Carisma": "dorado",
-      "Creatividad": "lavanda",
-      "Resolución de conflictos": "coral",
-      "Iniciativa": "oliva",
-      "Organización": "lila",
-      "Impulso personal": "amarillo"
-    };
+  const COLORES = {
+    "Inteligencia": "verde",
+    "Simpatía": "rojo",
+    "Comunicación": "azul",
+    "Carisma": "dorado",
+    "Creatividad": "lavanda",
+    "Resolución de conflictos": "coral",
+    "Iniciativa": "oliva",
+    "Organización": "lila",
+    "Impulso personal": "amarillo"
+  };
 
-    async function cargarParametros() {
-      try {
-        const res = await fetch(`${API_BASE}/parametros`);
-        const datos = await res.json();
+  async function cargarParametros() {
+    try {
+      const res = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const datos = await res.json();
 
-        // Top 4 (sin "Nivel AfinIA")
-        const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
-        const top4 = sinNivel.sort((a,b) => b[1]-a[1]).slice(0,4);
+      const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
+      const top4 = sinNivel.sort((a,b) => b[1]-a[1]).slice(0,4);
 
-        const lista = document.getElementById('listaParametros');
-        lista.innerHTML = "";
+      const lista = document.getElementById('listaParametros');
+      lista.innerHTML = "";
 
-        top4.forEach(([nombre, valor]) => {
-          const clase = COLORES[nombre] || "gris";
-          const item = document.createElement('div');
-          item.className = "parametro";
-          item.innerHTML = `
-            <div class="nombre-parametro">${nombre}</div>
-            <div class="barra-base">
-              <div class="barra ${clase}" style="width:${valor}%"></div>
-              <span class="porcentaje">${valor}%</span>
-            </div>
-          `;
-          lista.appendChild(item);
-        });
-      } catch (e) {
-        console.error("Error cargando parámetros:", e);
-      }
+      top4.forEach(([nombre, valor]) => {
+        const clase = COLORES[nombre] || "gris";
+        const item = document.createElement('div');
+        item.className = "parametro";
+        item.innerHTML = `
+          <div class="nombre-parametro">${nombre}</div>
+          <div class="barra-base">
+            <div class="barra ${clase}" style="width:${valor}%"></div>
+            <span class="porcentaje">${valor}%</span>
+          </div>
+        `;
+        lista.appendChild(item);
+      });
+    } catch (e) {
+      console.error("No pude cargar /parametros:", e);
+      // Muestra algo por defecto para no dejar vacío
+      document.getElementById('listaParametros').innerHTML = `
+        <div class="parametro"><div class="nombre-parametro">Inteligencia</div>
+          <div class="barra-base"><div class="barra verde" style="width:10%"></div><span class="porcentaje">10%</span></div>
+        </div>
+        <div class="parametro"><div class="nombre-parametro">Simpatía</div>
+          <div class="barra-base"><div class="barra rojo" style="width:10%"></div><span class="porcentaje">10%</span></div>
+        </div>
+        <div class="parametro"><div class="nombre-parametro">Comunicación</div>
+          <div class="barra-base"><div class="barra azul" style="width:10%"></div><span class="porcentaje">10%</span></div>
+        </div>
+        <div class="parametro"><div class="nombre-parametro">Carisma</div>
+          <div class="barra-base"><div class="barra dorado" style="width:10%"></div><span class="porcentaje">10%</span></div>
+        </div>`;
     }
+  }
 
-    // ============ Galería: guardar/cargar en localStorage ============
-    const claveFotos = "fotosPerfil";
-    function cargarFoto(input){
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = input.parentElement.querySelector('img');
-          img.src = e.target.result;
-          img.style.opacity = 1;
-          guardarFotos();
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
+  // Galería (igual que ya tenías)
+  const claveFotos = "fotosPerfil";
+  function cargarFoto(input){
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = input.parentElement.querySelector('img');
+        img.src = e.target.result;
+        img.style.opacity = 1;
+        const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(i => i.src);
+        localStorage.setItem(claveFotos, JSON.stringify(fotos));
+      };
+      reader.readAsDataURL(input.files[0]);
     }
-    function guardarFotos(){
-      const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(i => i.src);
-      localStorage.setItem(claveFotos, JSON.stringify(fotos));
-    }
-    function cargarFotosGuardadas(){
-      try{
-        const guardadas = JSON.parse(localStorage.getItem(claveFotos));
-        if (!guardadas) return;
-        const imgs = document.querySelectorAll('.galeria-privada label img');
-        guardadas.forEach((src,i)=>{
-          if(imgs[i]) { imgs[i].src = src; imgs[i].style.opacity = 1; }
-        });
-      }catch{}
-    }
+  }
+  function cargarFotosGuardadas(){
+    try{
+      const guardadas = JSON.parse(localStorage.getItem(claveFotos));
+      if (!guardadas) return;
+      const imgs = document.querySelectorAll('.galeria-privada label img');
+      guardadas.forEach((src,i)=>{ if(imgs[i]){ imgs[i].src = src; imgs[i].style.opacity = 1; }});
+    }catch{}
+  }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      cargarParametros();
-      cargarFotosGuardadas();
-    });
-  </script>
+  document.addEventListener("DOMContentLoaded", () => {
+    cargarParametros();
+    cargarFotosGuardadas();
+  });
+</script>
+
 </body>
 </html>
