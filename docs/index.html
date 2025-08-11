@@ -1,159 +1,125 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Perfil · AfinIA</title>
+  <title>Perfil AfinIA</title>
   <link rel="stylesheet" href="estilos-perfil.css"/>
+  <style>
+    /* asegura borde visible */
+    .foto-perfil{width:150px;height:150px;border-radius:50%;border:10px solid transparent;object-fit:cover;background:#fff}
+    .borde-verde{border-color:#7ce9b1}.borde-rojo{border-color:#f7a1a1}.borde-azul{border-color:#c7e1f6}
+    .borde-dorado{border-color:#fbeac3}.borde-lavanda{border-color:#e4c7f5}.borde-coral{border-color:#f7c8b2}
+    .borde-oliva{border-color:#d4eac1}.borde-lila{border-color:#d8ccf1}.borde-amarillo{border-color:#fff0b3}
+    .porcentaje{color:#222;font-weight:700}
+  </style>
 </head>
 <body>
   <div class="contenedor">
-    <!-- Logo -->
-    <div class="logo-contenedor">
-      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
+    <div class="logo-contenedor" style="display:flex;justify-content:center;margin:10px 0 6px">
+      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" style="width:120px;height:auto"/>
     </div>
 
-    <!-- (Opcional) buscador y botón + -->
-    <header class="barra-superior">
+    <header>
       <input type="text" placeholder="Buscar usuarios..." class="buscador"/>
-      <button class="boton-plus">+</button>
+      <a class="boton-plus" href="afinar.html">+</a>
     </header>
 
-    <!-- Perfil -->
     <section class="perfil">
-      <!-- Foto (si usas borde dinámico, deja este contenedor) -->
-      <div class="foto-wrapper">
-        <img src="foto_perfil.jpg" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil" />
-      </div>
+      <img src="foto_perfil.jpg" alt="Foto" class="foto-perfil" id="fotoPerfil"/>
 
       <div class="info-perfil">
         <h2>JJ Martín</h2>
-        <p class="handle">@jjmartin</p>
+        <p>@jjmartin</p>
         <p class="rol">CEO y Desarrollador</p>
 
-        <!-- Parámetros -->
-        <div class="parametros" id="listaParametros"></div>
+        <div class="parametros"></div>
 
-        <!-- Botones -->
         <div class="botones-dobles">
           <a href="afinar.html" class="boton-afinar">Afinar</a>
           <button class="editar">Editar perfil</button>
         </div>
       </div>
 
-      <!-- Galería privada -->
       <div class="galeria-privada">
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 1" />
-        </label>
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 2" />
-        </label>
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 3" />
-        </label>
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 4" />
-        </label>
+        <label class="foto-extra"><input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 1"/></label>
+        <label class="foto-extra"><input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 2"/></label>
+        <label class="foto-extra"><input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 3"/></label>
+        <label class="foto-extra"><input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 4"/></label>
       </div>
     </section>
   </div>
 
   <script>
-  // ===== Backend: local en dev, Railway en producción =====
-  const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-    ? "http://localhost:3000"
-    : "https://afinianazan-production-99ce.up.railway.app"; // <- TU Railway (HTTPS)
+    const API_BASE = (()=> {
+      const h=location.hostname;
+      if (h==="localhost"||h==="127.0.0.1") return "http://localhost:3000";
+      return "";
+    })();
 
-  const COLORES = {
-    "Inteligencia": "verde",
-    "Simpatía": "rojo",
-    "Comunicación": "azul",
-    "Carisma": "dorado",
-    "Creatividad": "lavanda",
-    "Resolución de conflictos": "coral",
-    "Iniciativa": "oliva",
-    "Organización": "lila",
-    "Impulso personal": "amarillo"
-  };
+    async function cargarParametros(){
+      const r=await fetch(`${API_BASE}/parametros`);
+      const datos=await r.json();
 
-  async function cargarParametros() {
-    try {
-      const res = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const datos = await res.json();
+      const sinNivel = Object.entries(datos).filter(([k])=>k!=="Nivel AfinIA");
+      const top4 = sinNivel.sort((a,b)=>b[1]-a[1]).slice(0,4);
 
-      const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
-      const top4 = sinNivel.sort((a,b) => b[1]-a[1]).slice(0,4);
-
-      const lista = document.getElementById('listaParametros');
-      lista.innerHTML = "";
-
-      top4.forEach(([nombre, valor]) => {
-        const clase = COLORES[nombre] || "gris";
-        const item = document.createElement('div');
-        item.className = "parametro";
-        item.innerHTML = `
-          <div class="nombre-parametro">${nombre}</div>
-          <div class="barra-base">
-            <div class="barra ${clase}" style="width:${valor}%"></div>
-            <span class="porcentaje">${valor}%</span>
-          </div>
-        `;
-        lista.appendChild(item);
-      });
-    } catch (e) {
-      console.error("No pude cargar /parametros:", e);
-      // Muestra algo por defecto para no dejar vacío
-      document.getElementById('listaParametros').innerHTML = `
-        <div class="parametro"><div class="nombre-parametro">Inteligencia</div>
-          <div class="barra-base"><div class="barra verde" style="width:10%"></div><span class="porcentaje">10%</span></div>
-        </div>
-        <div class="parametro"><div class="nombre-parametro">Simpatía</div>
-          <div class="barra-base"><div class="barra rojo" style="width:10%"></div><span class="porcentaje">10%</span></div>
-        </div>
-        <div class="parametro"><div class="nombre-parametro">Comunicación</div>
-          <div class="barra-base"><div class="barra azul" style="width:10%"></div><span class="porcentaje">10%</span></div>
-        </div>
-        <div class="parametro"><div class="nombre-parametro">Carisma</div>
-          <div class="barra-base"><div class="barra dorado" style="width:10%"></div><span class="porcentaje">10%</span></div>
-        </div>`;
-    }
-  }
-
-  // Galería (igual que ya tenías)
-  const claveFotos = "fotosPerfil";
-  function cargarFoto(input){
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = input.parentElement.querySelector('img');
-        img.src = e.target.result;
-        img.style.opacity = 1;
-        const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(i => i.src);
-        localStorage.setItem(claveFotos, JSON.stringify(fotos));
+      const colores = {
+        "Inteligencia":"verde","Simpatía":"rojo","Comunicación":"azul","Carisma":"dorado",
+        "Creatividad":"lavanda","Resolución de conflictos":"coral","Iniciativa":"oliva",
+        "Organización":"lila","Impulso personal":"amarillo"
       };
-      reader.readAsDataURL(input.files[0]);
+
+      const cont = document.querySelector(".parametros");
+      cont.innerHTML = "";
+      top4.forEach(([nombre, valor])=>{
+        const clase = colores[nombre] || "gris";
+        cont.innerHTML += `
+          <div class="parametro">
+            <span class="nombre-parametro">${nombre}</span>
+            <div class="barra-base">
+              <div class="barra ${clase}" style="width:${Math.round(valor)}%">
+                <span class="porcentaje">${Math.round(valor)}%</span>
+              </div>
+            </div>
+          </div>`;
+      });
+
+      const topName = top4[0]?.[0];
+      const mapaBorde = {
+        "Inteligencia":"borde-verde","Simpatía":"borde-rojo","Comunicación":"borde-azul","Carisma":"borde-dorado",
+        "Creatividad":"borde-lavanda","Resolución de conflictos":"borde-coral","Iniciativa":"borde-oliva",
+        "Organización":"borde-lila","Impulso personal":"borde-amarillo"
+      };
+      const foto = document.getElementById("fotoPerfil");
+      if (topName && foto) foto.className = `foto-perfil ${mapaBorde[topName]||""}`;
     }
-  }
-  function cargarFotosGuardadas(){
-    try{
-      const guardadas = JSON.parse(localStorage.getItem(claveFotos));
-      if (!guardadas) return;
-      const imgs = document.querySelectorAll('.galeria-privada label img');
-      guardadas.forEach((src,i)=>{ if(imgs[i]){ imgs[i].src = src; imgs[i].style.opacity = 1; }});
-    }catch{}
-  }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    cargarParametros();
-    cargarFotosGuardadas();
-  });
-</script>
+    // galería simple
+    const CLAVE_FOTOS="fotosPerfil_v1";
+    function cargarFoto(input){
+      if (input.files && input.files[0]){
+        const rd=new FileReader();
+        rd.onload = e=>{
+          input.parentElement.querySelector("img").src = e.target.result;
+          guardarFotos();
+        };
+        rd.readAsDataURL(input.files[0]);
+      }
+    }
+    function guardarFotos(){
+      const fotos=[...document.querySelectorAll(".galeria-privada label img")].map(img=>img.src);
+      localStorage.setItem(CLAVE_FOTOS, JSON.stringify(fotos));
+    }
+    function cargarFotosGuardadas(){
+      try{
+        const f=JSON.parse(localStorage.getItem(CLAVE_FOTOS)||"[]");
+        const imgs=document.querySelectorAll(".galeria-privada label img");
+        f.forEach((src,i)=>{ if(imgs[i]) imgs[i].src=src; });
+      }catch{}
+    }
 
+    document.addEventListener("DOMContentLoaded", ()=>{ cargarFotosGuardadas(); cargarParametros(); });
+  </script>
 </body>
 </html>
