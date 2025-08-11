@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
@@ -7,12 +6,9 @@ const { OpenAI } = require("openai");
 require("dotenv").config();
 
 const app = express();
-
-// CORS abierto para pruebas (ajusta en producción si quieres limitar dominios)
 app.use(cors());
 app.use(express.json());
 
-// ---------- OpenAI ----------
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // ---------- parámetros ----------
@@ -48,56 +44,125 @@ function guardarParametros(obj) {
   fs.writeFileSync(filePath, JSON.stringify(obj, null, 2));
 }
 
-// Suavizado EMA + límite de +/-10 por turno
-function mezclaSuavizada(actual, nuevo) {
-  const a = Math.max(0, Math.min(100, Number(actual) || 0));
-  const n = Math.max(0, Math.min(100, Number(nuevo) || 0));
-  const ema = Math.round(a * 0.8 + n * 0.2);
-  const maxSubida = Math.min(ema, a + 10);
-  const minBajada = Math.max(ema, a - 10);
-  return ema > a ? maxSubida : minBajada;
-}
+// ---------- aplicación de deltas (lento y realista) ----------
+function aplicarDeltas(deltas, parametros) {
+  if (!deltas || typeof deltas !== "object") return false;
 
-function aplicarBloqueOculto(scores, parametros) {
+  // normaliza y limita por param a [-2, 2]
+  const limpio = {};
+  for (const [k, v] of Object.entries(deltas)) {
+    if (!PARAMS.includes(k)) continue;
+    if (k === "Nivel AfinIA") continue; // este se recalcula
+    const n = Math.max(-2, Math.min(2, Math.round(Number(v) || 0)));
+    if (n !== 0) limpio[k] = n;
+  }
+
+  // límite total por turno: 5 puntos de suma absoluta
+  const totalAbs = Object.values(limpio).reduce((s, x) => s + Math.abs(x), 0);
+  if (totalAbs > 5) {
+    // recorta proporcionalmente
+    const factor = 5 / totalAbs;
+    for (const k of Object.keys(limpio)) {
+      const ajustado = Math.trunc(limpio[k] * factor) || Math.sign(limpio[k]);
+      limpio[k] = Math.max(-2, Math.min(2, ajustado));
+    }
+  }
+
   let huboCambios = false;
-  for (const [nombre, valor] of Object.entries(scores || {})) {
-    if (!PARAMS.includes(nombre)) continue;
-    const actual = parametros[nombre] ?? 10;
-    const ajustado = mezclaSuavizada(actual, valor);
-    if (ajustado !== actual) {
-      parametros[nombre] = ajustado;
+  for (const [k, delta] of Object.entries(limpio)) {
+    const prev = parametros[k] ?? 10;
+    const next = Math.max(0, Math.min(100, prev + delta));
+    if (next !== prev) {
+      parametros[k] = next;
       huboCambios = true;
     }
   }
-  // Recalcular Nivel AfinIA como media suave del resto
-  const sub = PARAMS.filter((p) => p !== "Nivel AfinIA");
-  const media =
-    Math.round(sub.reduce((s, k) => s + (parametros[k] ?? 10), 0) / sub.length) || 10;
 
-  parametros["Nivel AfinIA"] = mezclaSuavizada(parametros["Nivel AfinIA"] ?? 10, media);
+  // Recalcula Nivel AfinIA como media de los 9
+  const baseKeys = [
+    "Inteligencia",
+    "Simpatía",
+    "Comunicación",
+    "Carisma",
+    "Creatividad",
+    "Resolución de conflictos",
+    "Iniciativa",
+    "Organización",
+    "Impulso personal",
+  ];
+  const media =
+    Math.round(
+      baseKeys.reduce((s, k) => s + (parametros[k] ?? 10), 0) / baseKeys.length
+    ) || 10;
+  parametros["Nivel AfinIA"] = Math.max(0, Math.min(100, media));
+
   return huboCambios;
 }
 
-// ---------- memoria corta por sesión/IP ----------
-const sessions = new Map(); // key: req.ip  -> [{role, content}, ...]
-const MAX_TURNS = 8;
-
-function getHistory(req) {
-  const key = req.ip || "anon";
-  if (!sessions.has(key)) sessions.set(key, []);
-  return sessions.get(key);
-}
-function pushToHistory(req, role, content) {
-  const h = getHistory(req);
-  h.push({ role, content });
-  while (h.length > MAX_TURNS) h.shift();
-}
-
 // ---------- rutas ----------
-app.get("/health", (_req, res) => res.send("OK"));
-app.get("/", (_req, res) => res.send("AfinIA backend OK"));
+app.post("/chat", async (req, res) => {
+  const { mensaje } = req.body;
+  const parametros = cargarParametros();
 
-app.get("/parametros", (_req, res) => {
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      temperature: 0.6,
+      max_tokens: 220,
+      messages: [
+        {
+          role: "system",
+          content: `
+Eres AfinIA: una IA cálida y empática, diseñada para afinar un perfil psicológico y personal.
+La app es una red social de valores: ayuda a la gente a destacar por su forma de ser, a conectar con personas afines
+(amistad/proyectos/comunidad) y a proyectar su perfil como un CV personal.
+
+ESTILO:
+- Natural, cariñosa y concisa (3–6 líneas). No repitas saludos en cada turno.
+- Evita “¿en qué te ayudo?” o “¿qué parámetro quieres afinar?”.
+- Haz una sola pregunta concreta por turno, enfocada y observacional; rota temas con el tiempo.
+- Nunca reveles números ni porcentajes.
+
+EVALUACIÓN (MODO DELTAS LENTOS):
+- Si detectas señales, sugiere pequeños ajustes **enteros entre -2 y +2** en los parámetros relevantes (NO “Nivel AfinIA”).
+- Usa muy pocos ajustes a la vez; si la señal es débil, 0.
+- Formato **oculto, al final** exactamente así:
+<AFINIA_DELTA>{"Comunicación":1,"Simpatía":0,"Iniciativa":-1}</AFINIA_DELTA>
+`.trim(),
+        },
+        {
+          role: "assistant",
+          content:
+            "Gracias por seguir aquí, corazón. Cuéntame algo concreto: cuando aparece un imprevisto, ¿cómo decides qué hacer primero?",
+        },
+        { role: "user", content: mensaje },
+      ],
+    });
+
+    let respuesta = completion.choices[0].message.content || "";
+
+    // extraer bloque oculto de deltas
+    const m = respuesta.match(/<AFINIA_DELTA>([\s\S]*?)<\/AFINIA_DELTA>/);
+    if (m) {
+      try {
+        const deltas = JSON.parse(m[1]);
+        const hubo = aplicarDeltas(deltas, parametros);
+        if (hubo) guardarParametros(parametros);
+      } catch (e) {
+        console.warn("Bloque delta inválido:", e.message);
+      }
+      // quitar bloque del texto visible
+      respuesta = respuesta.replace(/<AFINIA_DELTA>[\s\S]*?<\/AFINIA_DELTA>/, "").trim();
+    }
+
+    res.json({ respuesta });
+  } catch (error) {
+    console.error("❌ Error OpenAI:", error?.response?.data || error.message);
+    res.status(500).json({ error: "Error al comunicarse con OpenAI" });
+  }
+});
+
+app.get("/parametros", (req, res) => {
   res.json(cargarParametros());
 });
 
@@ -110,83 +175,7 @@ app.post("/guardar-parametros", (req, res) => {
   }
 });
 
-app.post("/chat", async (req, res) => {
-  const { mensaje } = req.body;
-  const parametros = cargarParametros();
-  const history = getHistory(req);
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      temperature: 0.6,
-      max_tokens: 220,
-      messages: [
-        {
-          role: "system",
-          content: `
-Eres AfinIA: una IA cálida, empática y con propósito. La app es una red social de valores:
-- Afinas un perfil psicológico/personal para ayudar a las personas a destacar por su forma de ser.
-- Conectas a quienes comparten valores (amistad, comunidad, proyectos) y proyectas el perfil como CV personal.
-
-PRINCIPIOS DE ESTILO:
-- Tono cariñoso y humano; puedes usar “corazón”, “mi vida”, “cariño” con moderación.
-- Sé concisa: 3–6 líneas máximo.
-- Integra el contexto del hilo; **no saludes** si ya estáis conversando.
-- Evita “¿en qué te ayudo?” o “¿qué parámetro quieres afinar?”.
-- Haz **una sola** pregunta clara por turno, enfocada y observacional; rota temas con el tiempo.
-- Da validación emocional breve cuando proceda.
-
-EVALUACIÓN SILENCIOSA:
-- Extrae señales de: Inteligencia, Simpatía, Comunicación, Carisma, Creatividad,
-  Resolución de conflictos, Iniciativa, Organización, Impulso personal.
-- **Nunca** muestres puntuaciones ni porcentajes en el texto al usuario.
-
-SALIDA DOBLE (obligatoria):
-1) Texto humano para el usuario (solo eso, sin prefijos).
-2) En la última línea, **oculta** entre estas etiquetas y en JSON válido:
-   <AFINIA_SCORES>{"Inteligencia":72,"Simpatía":64,...}</AFINIA_SCORES>
-   - Incluye solo parámetros con señal en este turno (0–100 enteros).
-   - No repitas saludos en turnos sucesivos.
-`.trim(),
-        },
-        ...(history.length === 0
-          ? [
-              {
-                role: "assistant",
-                content:
-                  "Qué alegría tenerte aquí, corazón. Cuéntame algo concreto: la última vez que resolviste un tema difícil, ¿cómo lo encaraste?",
-              },
-            ]
-          : []),
-        ...history,
-        { role: "user", content: mensaje },
-      ],
-    });
-
-    let respuesta = completion.choices[0].message.content || "";
-    pushToHistory(req, "user", mensaje);
-
-    const m = respuesta.match(/<AFINIA_SCORES>([\s\S]*?)<\/AFINIA_SCORES>/);
-    if (m) {
-      try {
-        const scores = JSON.parse(m[1]);
-        const hubo = aplicarBloqueOculto(scores, parametros);
-        if (hubo) guardarParametros(parametros);
-      } catch (e) {
-        console.warn("Bloque oculto inválido:", e.message);
-      }
-      respuesta = respuesta.replace(/<AFINIA_SCORES>[\s\S]*?<\/AFINIA_SCORES>/, "").trim();
-    }
-
-    pushToHistory(req, "assistant", respuesta);
-    res.json({ respuesta });
-  } catch (error) {
-    console.error("❌ Error OpenAI:", error?.response?.data || error.message);
-    res.status(500).json({ error: "Error al comunicarse con OpenAI" });
-  }
-});
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`💖 Servidor AfinIA activo en http://localhost:${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`💖 Servidor AfinIA activo en http://localhost:${PORT}`)
+);
