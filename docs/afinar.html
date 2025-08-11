@@ -6,122 +6,116 @@
   <title>Afinar - AfinIA</title>
   <link rel="stylesheet" href="afinar.css"/>
   <style>
-    /* refuerzo rápido por si tu CSS no lo tiene */
-    .mensajes-chat{max-height:420px;overflow-y:auto}
+    .contenedor-afinar{max-width:600px;margin:auto;padding:16px}
+    .logo{display:flex;justify-content:center;margin:8px 0 6px}
+    .logo-afinia{width:120px;height:auto}
+    .chat-afinia{display:flex;flex-direction:column;background:#fff;padding:16px;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.08);height:540px;overflow:hidden;margin-bottom:16px}
+    .mensajes-chat{flex:1;overflow-y:auto;display:flex;flex-direction:column}
     .mensaje-bot,.mensaje-usuario{padding:10px 14px;border-radius:16px;margin-bottom:8px;max-width:85%;font-size:15px;line-height:1.4}
     .mensaje-bot{background:#fce6ec;color:#444;align-self:flex-start}
     .mensaje-usuario{background:#f78ca2;color:#fff;align-self:flex-end}
-    .barra{height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-weight:bold}
+    .input-chat{display:flex;gap:10px}
+    .input-chat input{flex:1;padding:10px;border:1px solid #ccc;border-radius:9999px}
+    .input-chat button{padding:10px 16px;border-radius:9999px;background:#f78ca2;color:#fff;border:none;font-weight:700}
+
+    .contenedor-parametros{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+    .parametro-afinar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .nombre-parametro{width:160px;font-weight:700}
+    .barra-contenedor{flex:1;height:24px;border-radius:9999px;background:#eee;position:relative;overflow:hidden}
+    .barra{height:100%}
+    .pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-weight:700;color:#222}
+
+    .rosa .barra{background:#f78ca2}.verde .barra{background:#7ce9b1}.rojo .barra{background:#f7a1a1}
+    .azul .barra{background:#c7e1f6}.melocoton .barra{background:#fbeac3}.lavanda .barra{background:#e4c7f5}
+    .coral .barra{background:#f7c8b2}.oliva .barra{background:#d4eac1}.lila .barra{background:#d8ccf1}.amarillo .barra{background:#fff0b3}
   </style>
 </head>
 <body>
   <div class="contenedor-afinar">
-    <div class="logo" style="display:flex;justify-content:center;margin:10px 0 6px">
-      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" style="width:120px;height:auto"/>
+    <div class="logo">
+      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia"/>
     </div>
 
-    <div class="chat-afinia" style="display:flex;flex-direction:column;background:#fff;padding:16px;border-radius:16px;box-shadow:0 2px 6px rgba(0,0,0,.08);height:540px;overflow:hidden;margin-bottom:16px">
-      <div class="mensajes-chat" id="mensajes-chat" style="display:flex;flex-direction:column"></div>
-      <div class="input-chat" style="display:flex;gap:10px">
-        <input type="text" id="entradaUsuario" placeholder="Escribe algo..." />
+    <div class="chat-afinia">
+      <div class="mensajes-chat" id="mensajes-chat"></div>
+      <div class="input-chat">
+        <input type="text" id="entradaUsuario" placeholder="Escribe algo..."/>
         <button id="enviarBtn">Enviar</button>
       </div>
     </div>
 
     <div class="contenedor-parametros">
-      <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA">
-        <span class="nombre-parametro">Nivel AfinIA</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-      </div>
-      <div class="parametro-afinar verde" data-nombre="Inteligencia"><span class="nombre-parametro">Inteligencia</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar rojo" data-nombre="Simpatía"><span class="nombre-parametro">Simpatía</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar azul" data-nombre="Comunicación"><span class="nombre-parametro">Comunicación</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar melocoton" data-nombre="Carisma"><span class="nombre-parametro">Carisma</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar lavanda" data-nombre="Creatividad"><span class="nombre-parametro">Creatividad</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos"><span class="nombre-parametro">Resolución de conflictos</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar oliva" data-nombre="Iniciativa"><span class="nombre-parametro">Iniciativa</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar lila" data-nombre="Organización"><span class="nombre-parametro">Organización</span><div class="barra-contenedor"><div class="barra"></div></div></div>
-      <div class="parametro-afinar amarillo" data-nombre="Impulso personal"><span class="nombre-parametro">Impulso personal</span><div class="barra-contenedor"><div class="barra"></div></div></div>
+      <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA"><span class="nombre-parametro">Nivel AfinIA</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar verde" data-nombre="Inteligencia"><span class="nombre-parametro">Inteligencia</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar rojo" data-nombre="Simpatía"><span class="nombre-parametro">Simpatía</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar azul" data-nombre="Comunicación"><span class="nombre-parametro">Comunicación</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar melocoton" data-nombre="Carisma"><span class="nombre-parametro">Carisma</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar lavanda" data-nombre="Creatividad"><span class="nombre-parametro">Creatividad</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos"><span class="nombre-parametro">Resolución de conflictos</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar oliva" data-nombre="Iniciativa"><span class="nombre-parametro">Iniciativa</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar lila" data-nombre="Organización"><span class="nombre-parametro">Organización</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
+      <div class="parametro-afinar amarillo" data-nombre="Impulso personal"><span class="nombre-parametro">Impulso personal</span><div class="barra-contenedor"><div class="barra"></div><span class="pct">0%</span></div></div>
     </div>
   </div>
 
   <script>
-    // ——— autodetección local / railway
-    const API_BASE = (() => {
-      const h = location.hostname;
-      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-      return ""; // mismo host en producción (proxy/railway)
-    })();
+    // 🔗 BACKEND FIJO (Railway)
+    const API_BASE = "https://afinianazan-production-99ce.up.railway.app";
 
-    // ——— typing
-    function escribirConEfecto(el, texto, vel=25){
-      let i=0; el.textContent="";
-      const t=setInterval(()=>{ el.textContent+=texto.charAt(i++); if(i>=texto.length) clearInterval(t);
-        const cont=document.getElementById("mensajes-chat"); cont.scrollTop=cont.scrollHeight; }, vel);
-    }
+    // typing
+    function escribirConEfecto(el, txt, vel=25){ let i=0; el.textContent="";
+      const t=setInterval(()=>{ el.textContent+=txt.charAt(i++); if(i>=txt.length) clearInterval(t);
+        const c=document.getElementById("mensajes-chat"); c.scrollTop=c.scrollHeight; },vel); }
     function agregarMensaje(texto, clase, typing=false){
       const cont=document.getElementById("mensajes-chat");
       const div=document.createElement("div"); div.className=clase; cont.appendChild(div);
-      typing ? escribirConEfecto(div,texto) : (div.textContent=texto);
-      cont.scrollTop=cont.scrollHeight; return div;
+      typing?escribirConEfecto(div,texto):(div.textContent=texto); cont.scrollTop=cont.scrollHeight; guardarChat(); return div;
     }
 
-    // ——— persistencia chat
+    // persistencia chat
     const CHAT_KEY="afinia_chat_v1";
     function guardarChat(){
-      const arr=[...document.querySelectorAll("#mensajes-chat>div")].map(n=>({clase:n.className,texto:n.textContent}));
+      const arr=[...document.querySelectorAll("#mensajes-chat>div")].map(n=>({c:n.className,t:n.textContent}));
       localStorage.setItem(CHAT_KEY, JSON.stringify(arr));
     }
     function cargarChat(){
       try{
         const arr=JSON.parse(localStorage.getItem(CHAT_KEY)||"[]");
-        arr.forEach(m=>agregarMensaje(m.texto,m.clase,false));
+        arr.forEach(m=>agregarMensaje(m.t,m.c,false));
       }catch{}
     }
-    const _agregarMensaje = agregarMensaje;
-    agregarMensaje = function(txt, cls, typing=false){
-      const el = _agregarMensaje(txt, cls, typing);
-      if (typing) setTimeout(guardarChat, 400); else guardarChat();
-      return el;
-    };
 
-    // ——— barras
-    async function cargarYpintarParametros(){
+    // barras
+    async function pintar(){
       const r=await fetch(`${API_BASE}/parametros`);
       const datos=await r.json();
       document.querySelectorAll(".parametro-afinar").forEach(p=>{
-        const nombre=p.dataset.nombre;
-        const valor=datos[nombre];
-        const barra=p.querySelector(".barra");
-        if (barra && typeof valor==="number"){
-          barra.style.width = valor + "%";
-          barra.textContent = Math.round(valor) + "%";
-        }
+        const nombre=p.dataset.nombre; const v = Math.round(datos[nombre]||0);
+        const barra=p.querySelector(".barra"); const pct=p.querySelector(".pct");
+        if(barra){ barra.style.width=v+"%"; }
+        if(pct){ pct.textContent=v+"%"; }
       });
     }
 
-    // ——— chat
-    const chat= document.getElementById("mensajes-chat");
-    const input= document.getElementById("entradaUsuario");
-    const btn  = document.getElementById("enviarBtn");
+    // chat
+    const input=document.getElementById("entradaUsuario");
+    const btn=document.getElementById("enviarBtn");
     let enviando=false;
 
-    async function enviarMensaje(){
-      const mensaje = input.value.trim();
-      if (!mensaje || enviando) return;
+    async function enviar(){
+      const mensaje=input.value.trim(); if(!mensaje||enviando) return;
       enviando=true; btn.disabled=true;
-
       agregarMensaje(mensaje,"mensaje-usuario");
       input.value="";
 
       try{
         const res=await fetch(`${API_BASE}/chat`,{
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({ mensaje })
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({mensaje})
         });
         const data=await res.json();
         agregarMensaje(data.respuesta||"…","mensaje-bot",true);
-        await cargarYpintarParametros();
+        await pintar();
       }catch(e){
         agregarMensaje("Lo siento, hubo un error al conectar con la IA.","mensaje-bot");
       }finally{
@@ -131,14 +125,13 @@
 
     document.addEventListener("DOMContentLoaded", async ()=>{
       cargarChat();
-      if (chat.children.length===0){
-        agregarMensaje("Hola corazón, estoy contigo. ¿Qué te ha movido hoy, aunque sea algo pequeñito?", "mensaje-bot", true);
+      if (document.getElementById("mensajes-chat").children.length===0){
+        agregarMensaje("Hola corazón, estoy contigo. ¿Qué te ha movido hoy, aunque sea un detalle pequeñito?", "mensaje-bot", true);
       }
-      await cargarYpintarParametros();
+      await pintar();
     });
-
-    btn.addEventListener("click", enviarMensaje);
-    input.addEventListener("keydown", e=>{ if(e.key==="Enter") enviarMensaje(); });
+    btn.addEventListener("click", enviar);
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") enviar(); });
   </script>
 </body>
 </html>
