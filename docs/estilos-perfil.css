@@ -29,10 +29,9 @@ body{
   justify-content: center;
   margin: 8px 0 16px;
 }
-.logo-afinia{
-  width: var(--logo-w);
+.logo-afinia {
+  max-width: 160px;
   height: auto;
-  display: block;
 }
 
 /* Barra superior opcional */
