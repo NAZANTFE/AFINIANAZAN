@@ -1,68 +1,34 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Perfil AfinIA</title>
   <link rel="stylesheet" href="estilos-perfil.css"/>
-  <style>
-    .contenedor{max-width:600px;margin:auto;padding:16px}
-    .logo-contenedor{display:flex;justify-content:center;margin:8px 0 6px}
-    .logo-afinia{width:120px;height:auto}
-
-    header{display:flex;gap:10px;align-items:center;margin:8px 0 16px}
-    .buscador{flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:9999px}
-    .boton-plus{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-      text-decoration:none;border:2px solid #f78ca2;color:#f78ca2;background:#fff;font-weight:700}
-
-    .perfil{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-    .foto-perfil{width:150px;height:150px;border-radius:50%;border:10px solid transparent;object-fit:cover;display:block;margin:8px auto 12px}
-    .borde-verde{border-color:#7ce9b1}.borde-rojo{border-color:#f7a1a1}.borde-azul{border-color:#c7e1f6}
-    .borde-dorado{border-color:#fbeac3}.borde-lavanda{border-color:#e4c7f5}.borde-coral{border-color:#f7c8b2}
-    .borde-oliva{border-color:#d4eac1}.borde-lila{border-color:#d8ccf1}.borde-amarillo{border-color:#fff0b3}
-
-    .info-perfil{text-align:center}
-    .rol{font-style:italic;color:#666}
-
-    .parametros{margin-top:16px;display:flex;flex-direction:column;gap:12px}
-    .parametro{display:flex;align-items:center;gap:10px}
-    .nombre-parametro{width:140px;font-weight:700}
-    .barra-base{flex:1;height:26px;border-radius:9999px;background:#f1f1f1;position:relative;overflow:hidden}
-    .barra{height:100%}
-    .porcentaje-externo{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-weight:700;color:#222}
-
-    .verde{background:#7ce9b1}.rojo{background:#f7a1a1}.azul{background:#c7e1f6}.dorado{background:#fbeac3}
-    .lavanda{background:#e4c7f5}.coral{background:#f7c8b2}.oliva{background:#d4eac1}.lila{background:#d8ccf1}.amarillo{background:#fff0b3}
-
-    .botones-dobles{display:flex;gap:10px;margin-top:16px}
-    .boton-afinar,.editar{flex:1;padding:10px 0;border-radius:9999px;border:none;text-align:center;font-weight:700}
-    .boton-afinar{background:#f78ca2;color:#fff;text-decoration:none}
-    .editar{background:#fff;border:2px solid #ddd}
-    .galeria-privada{margin-top:18px;display:grid;grid-template-columns:repeat(2, 1fr);gap:10px}
-    .foto-extra{width:100%;aspect-ratio:1/1;background:#fcdede;border-radius:10px;overflow:hidden;display:block}
-    .foto-extra img{width:100%;height:100%;object-fit:cover}
-    .input-foto{display:none}
-  </style>
 </head>
 <body>
   <div class="contenedor">
     <div class="logo-contenedor">
-      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia"/>
+      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
     </div>
 
     <header>
       <input type="text" placeholder="Buscar usuarios..." class="buscador"/>
-      <a class="boton-plus" href="afinar.html">+</a>
+      <button class="boton-plus">+</button>
     </header>
 
     <section class="perfil">
-      <img src="foto_perfil.jpg" alt="Foto" class="foto-perfil" id="fotoPerfil"/>
+      <!-- foto flotante centrada -->
+      <div class="foto-perfil-progreso" id="borde-progreso">
+        <img src="foto_perfil.jpg" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil" />
+      </div>
 
       <div class="info-perfil">
         <h2>JJ Martín</h2>
         <p>@jjmartin</p>
         <p class="rol">CEO y Desarrollador</p>
 
+        <!-- PARÁMETROS (se llenan por JS) -->
         <div class="parametros"></div>
 
         <div class="botones-dobles">
@@ -71,78 +37,116 @@
         </div>
       </div>
 
+      <!-- GALERÍA -->
       <div class="galeria-privada">
-        <label class="foto-extra"><input class="input-foto" type="file" accept="image/*" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 1"/></label>
-        <label class="foto-extra"><input class="input-foto" type="file" accept="image/*" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 2"/></label>
-        <label class="foto-extra"><input class="input-foto" type="file" accept="image/*" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 3"/></label>
-        <label class="foto-extra"><input class="input-foto" type="file" accept="image/*" onchange="cargarFoto(this)"><img src="silueta.png" alt="Foto 4"/></label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 1" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 2" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 3" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 4" />
+        </label>
       </div>
     </section>
   </div>
 
   <script>
-    // 🔗 BACKEND FIJO (Railway)
-    const API_BASE = "https://afinianazan-production-99ce.up.railway.app";
+    // Auto-detección backend
+    const API_BASE = (() => {
+      const h = location.hostname;
+      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
+      return "";
+    })();
 
-    async function cargarParametros(){
-      const r = await fetch(`${API_BASE}/parametros`);
-      const datos = await r.json();
+    async function cargarParametrosDesdeAPI() {
+      try {
+        const res = await fetch(`${API_BASE}/parametros`);
+        const datos = await res.json();
 
-      const sinNivel = Object.entries(datos).filter(([k])=>k!=="Nivel AfinIA");
-      const top4 = sinNivel.sort((a,b)=>b[1]-a[1]).slice(0,4);
+        const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
+        const top4 = sinNivel.sort((a, b) => b[1] - a[1]).slice(0, 4);
 
-      const colores = {
-        "Inteligencia":"verde","Simpatía":"rojo","Comunicación":"azul","Carisma":"dorado",
-        "Creatividad":"lavanda","Resolución de conflictos":"coral","Iniciativa":"oliva",
-        "Organización":"lila","Impulso personal":"amarillo"
-      };
+        const colores = {
+          "Inteligencia": "verde",
+          "Simpatía": "rojo",
+          "Comunicación": "azul",
+          "Carisma": "dorado",
+          "Creatividad": "lavanda",
+          "Resolución de conflictos": "coral",
+          "Iniciativa": "oliva",
+          "Organización": "lila",
+          "Impulso personal": "amarillo"
+        };
 
-      const cont = document.querySelector(".parametros");
-      cont.innerHTML = "";
-      top4.forEach(([nombre, valor])=>{
-        const clase = colores[nombre] || "verde";
-        const pct = Math.round(valor);
-        cont.innerHTML += `
-          <div class="parametro">
-            <span class="nombre-parametro">${nombre}</span>
-            <div class="barra-base">
-              <div class="barra ${clase}" style="width:${pct}%"></div>
-              <span class="porcentaje-externo">${pct}%</span>
+        const contenedor = document.querySelector('.parametros');
+        contenedor.innerHTML = '';
+
+        top4.forEach(([nombre, valor]) => {
+          const clase = colores[nombre] || 'gris';
+          contenedor.innerHTML += `
+            <div class="parametro">
+              <span class="nombre-parametro">${nombre}</span>
+              <div class="barra-base">
+                <div class="barra ${clase}" style="width: ${valor}%"></div>
+                <span class="porcentaje">${valor}%</span>
+              </div>
             </div>
-          </div>`;
-      });
+          `;
+        });
 
-      const topName = top4[0]?.[0];
-      const mapBorde = {
-        "Inteligencia":"borde-verde","Simpatía":"borde-rojo","Comunicación":"borde-azul","Carisma":"borde-dorado",
-        "Creatividad":"borde-lavanda","Resolución de conflictos":"borde-coral","Iniciativa":"borde-oliva",
-        "Organización":"borde-lila","Impulso personal":"borde-amarillo"
-      };
-      const foto = document.getElementById("fotoPerfil");
-      if (topName && foto) foto.className = `foto-perfil ${mapBorde[topName]||""}`;
-    }
-
-    // galería
-    const CLAVE_FOTOS="fotosPerfil_v1";
-    function cargarFoto(input){
-      if (!input.files?.[0]) return;
-      const fr = new FileReader();
-      fr.onload = e => { input.parentElement.querySelector("img").src = e.target.result; guardarFotos(); };
-      fr.readAsDataURL(input.files[0]);
-    }
-    function guardarFotos(){
-      const fotos=[...document.querySelectorAll(".galeria-privada label img")].map(img=>img.src);
-      localStorage.setItem(CLAVE_FOTOS, JSON.stringify(fotos));
-    }
-    function cargarFotosGuardadas(){
-      try{
-        const f=JSON.parse(localStorage.getItem(CLAVE_FOTOS)||"[]");
-        const imgs=document.querySelectorAll(".galeria-privada label img");
-        f.forEach((src,i)=>{ if(imgs[i]) imgs[i].src=src; });
-      }catch{}
+        // Borde por parámetro top
+        const claseTop = colores[top4[0][0]];
+        const foto = document.getElementById('fotoPerfil');
+        foto.className = `foto-perfil borde-${claseTop}`;
+      } catch (e) {
+        console.error("Error cargando parámetros:", e);
+      }
     }
 
-    document.addEventListener("DOMContentLoaded", ()=>{ cargarFotosGuardadas(); cargarParametros(); });
+    // Galería
+    const claveFotos = "fotosPerfil";
+    function cargarFoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = input.parentElement.querySelector('img');
+          img.src = e.target.result;
+          img.style.opacity = 1;
+          guardarFotos();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    function guardarFotos() {
+      const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(img => img.src);
+      localStorage.setItem(claveFotos, JSON.stringify(fotos));
+    }
+    function cargarFotosGuardadas() {
+      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos));
+      if (fotosGuardadas) {
+        const imgs = document.querySelectorAll('.galeria-privada label img');
+        fotosGuardadas.forEach((src, i) => {
+          if (imgs[i]) {
+            imgs[i].src = src;
+            imgs[i].style.opacity = 1;
+          }
+        });
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      cargarFotosGuardadas();
+      cargarParametrosDesdeAPI();
+    });
   </script>
 </body>
 </html>
