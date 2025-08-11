@@ -101,43 +101,46 @@ function aplicarDeltas(deltas, parametros) {
 
 // ---------- rutas ----------
 app.post("/chat", async (req, res) => {
-  const { mensaje } = req.body;
-  const parametros = cargarParametros();
-
+  const userMessage = req.body.message;
+  const nombreUsuario = "JJ"; // O cárgalo desde tu perfil
+  
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      temperature: 0.6,
-      max_tokens: 220,
-      messages: [
-        {
-          role: "system",
-          content: `
-Eres AfinIA: una IA cálida y empática, diseñada para afinar un perfil psicológico y personal.
-La app es una red social de valores: ayuda a la gente a destacar por su forma de ser, a conectar con personas afines
-(amistad/proyectos/comunidad) y a proyectar su perfil como un CV personal.
-
-ESTILO:
-- Natural, cariñosa y concisa (3–6 líneas). No repitas saludos en cada turno.
-- Evita “¿en qué te ayudo?” o “¿qué parámetro quieres afinar?”.
-- Haz una sola pregunta concreta por turno, enfocada y observacional; rota temas con el tiempo.
-- Nunca reveles números ni porcentajes.
-
-EVALUACIÓN (MODO DELTAS LENTOS):
-- Si detectas señales, sugiere pequeños ajustes **enteros entre -2 y +2** en los parámetros relevantes (NO “Nivel AfinIA”).
-- Usa muy pocos ajustes a la vez; si la señal es débil, 0.
-- Formato **oculto, al final** exactamente así:
-<AFINIA_DELTA>{"Comunicación":1,"Simpatía":0,"Iniciativa":-1}</AFINIA_DELTA>
-`.trim(),
-        },
-        {
-          role: "assistant",
-          content:
-            "Gracias por seguir aquí, corazón. Cuéntame algo concreto: cuando aparece un imprevisto, ¿cómo decides qué hacer primero?",
-        },
-        { role: "user", content: mensaje },
-      ],
+    const completion = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `
+              Eres AfinIA, una IA que habla con ${nombreUsuario} como si fuera un amigo cercano.
+              Siempre hablas con cariño, empatía y un toque de ternura.
+              No empieces siempre igual: alterna saludos, usa expresiones naturales, muestra interés real por lo que dice.
+              Haz que la conversación fluya, no bombardees con preguntas directas.
+              Usa su tono emocional para ajustar internamente parámetros como simpatía, iniciativa, resolución de conflictos...
+              No digas que estás evaluando nada.
+              Tu misión es que él se sienta acompañado, comprendido y motivado.
+            `
+          },
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.9
+      })
     });
+
+    const data = await completion.json();
+    res.json({ reply: data.choices[0].message.content });
+
+  } catch (error) {
+    console.error("Error en el chat:", error);
+    res.status(500).json({ reply: "Lo siento mucho, corazón... ahora mismo tengo un problemilla para responder, pero aquí estoy para ti ❤️" });
+  }
+});
+
 
     let respuesta = completion.choices[0].message.content || "";
 
