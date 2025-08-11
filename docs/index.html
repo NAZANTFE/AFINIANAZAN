@@ -1,1 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil AfinIA</title>
+  <link rel="stylesheet" href="estilos-perfil.css"/>
+</head>
+<body>
+  <div class="contenedor">
+    <div class="logo-contenedor">
+      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
+    </div>
+
+    <header>
+      <input type="text" placeholder="Buscar usuarios..." class="buscador"/>
+      <button class="boton-plus">+</button>
+    </header>
+
+    <section class="perfil">
+      <div class="foto-perfil-progreso" id="borde-progreso">
+        <img src="foto_perfil.jpg" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil" />
+      </div>
+
+      <div class="info-perfil">
+        <h2>JJ Martín</h2>
+        <p>@jjmartin</p>
+        <p class="rol">CEO y Desarrollador</p>
+
+        <div class="parametros"></div>
+
+        <div class="botones-dobles">
+          <a href="afinar.html" class="boton-afinar">Afinar</a>
+          <button class="editar">Editar perfil</button>
+        </div>
+      </div>
+
+      <!-- GALERÍA -->
+      <div class="galeria-privada">
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 1" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 2" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 3" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 4" />
+        </label>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const RAILWAY_DOMAIN = "https://afinia-production.up.railway.app";
+    const API_BASE = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+      ? "http://localhost:3000"
+      : RAILWAY_DOMAIN;
+
+    async function cargarParametrosDesdeAPI() {
+      try {
+        const response = await fetch(`${API_BASE}/parametros`);
+        const datos = await response.json();
+
+        const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
+        const top4 = sinNivel.sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+        const colores = {
+          "Inteligencia": "verde",
+          "Simpatía": "rojo",
+          "Comunicación": "azul",
+          "Carisma": "dorado",
+          "Creatividad": "lavanda",
+          "Resolución de conflictos": "coral",
+          "Iniciativa": "oliva",
+          "Organización": "lila",
+          "Impulso personal": "amarillo"
+        };
+
+        const contenedor = document.querySelector('.parametros');
+        contenedor.innerHTML = '';
+
+        top4.forEach(([nombre, valor]) => {
+          const clase = colores[nombre] || 'gris';
+          contenedor.innerHTML += `
+            <div class="parametro">
+              <span class="nombre-parametro">${nombre}</span>
+              <div class="barra-base">
+                <div class="barra ${clase}" style="width: ${valor}%">
+                  <span class="porcentaje">${valor}%</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        const claseTop = colores[top4[0][0]];
+        const foto = document.querySelector('.foto-perfil');
+        foto.className = `foto-perfil borde-${claseTop}`;
+      } catch (err) {
+        console.error("Error cargando parámetros:", err);
+      }
+    }
+
+    const claveFotos = "fotosPerfil";
+    function cargarFoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = input.parentElement.querySelector('img');
+          img.src = e.target.result;
+          img.style.opacity = 1;
+          guardarFotos();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    function guardarFotos() {
+      const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(img => img.src);
+      localStorage.setItem(claveFotos, JSON.stringify(fotos));
+    }
+    function cargarFotosGuardadas() {
+      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos));
+      if (fotosGuardadas) {
+        const imagenes = document.querySelectorAll('.galeria-privada label img');
+        fotosGuardadas.forEach((src, i) => {
+          if (imagenes[i]) {
+            imagenes[i].src = src;
+            imagenes[i].style.opacity = 1;
+          }
+        });
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      cargarFotosGuardadas();
+      cargarParametrosDesdeAPI();
+    });
+  </script>
+</body>
+</html>
 
