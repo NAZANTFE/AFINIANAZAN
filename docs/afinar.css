@@ -20,9 +20,10 @@ body {
   margin-bottom: 16px;
 }
 
-.logo-afinia {
-  max-width: 160px;
+.logo-afinia{
+  width: var(--logo-w);
   height: auto;
+  display: block;
 }
 
 /* ==================== CHAT ==================== */
