@@ -57,68 +57,101 @@
     </section>
   </div>
 
+  <!-- Auto-detección backend (local / Railway) -->
   <script>
-  // 👉 Cambia SOLO esta línea por tu dominio Railway
-  const API_BASE = "afinianazan-production-99ce.up.railway.app"; // ejemplo
+    const API_BASE = (() => {
+      const h = location.hostname;
+      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
+      return "https://afinianazan-production-99ce.up.railway.app";
+    })();
+  </script>
 
-  async function cargarParametros() {
-    try {
-      const r = await fetch(`${API_BASE}/parametros`);
-      const datos = await r.json();
+  <!-- Carga parámetros + galería -->
+  <script>
+    async function cargarParametrosDesdeAPI() {
+      try {
+        const response = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
+        if (!response.ok) throw new Error("Backend no responde");
+        const datos = await response.json();
 
-      const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
-      const top4 = sinNivel.sort((a,b)=>b[1]-a[1]).slice(0,4);
+        const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
+        const top4 = sinNivel.sort((a, b) => b[1] - a[1]).slice(0, 4);
 
-      const colores = {
-        "Inteligencia": "verde",
-        "Simpatía": "rojo",
-        "Comunicación": "azul",
-        "Carisma": "dorado",
-        "Creatividad": "lavanda",
-        "Resolución de conflictos": "coral",
-        "Iniciativa": "oliva",
-        "Organización": "lila",
-        "Impulso personal": "amarillo"
-      };
+        const colores = {
+          "Inteligencia": "verde",
+          "Simpatía": "rojo",
+          "Comunicación": "azul",
+          "Carisma": "dorado",
+          "Creatividad": "lavanda",
+          "Resolución de conflictos": "coral",
+          "Iniciativa": "oliva",
+          "Organización": "lila",
+          "Impulso personal": "amarillo"
+        };
 
-      const cont = document.querySelector('.parametros');
-      cont.innerHTML = '';
+        const contenedor = document.querySelector('.parametros');
+        contenedor.innerHTML = '';
 
-      top4.forEach(([nombre, valor])=>{
-        const clase = colores[nombre] || 'gris';
-        cont.innerHTML += `
-          <div class="parametro">
-            <span class="nombre-parametro">${nombre}</span>
-            <div class="barra-base">
-              <div class="barra ${clase}" style="width:${valor}%">
-                <span class="porcentaje">${valor}%</span>
+        top4.forEach(([nombre, valor]) => {
+          const clase = colores[nombre] || 'gris';
+          contenedor.innerHTML += `
+            <div class="parametro">
+              <span class="nombre-parametro">${nombre}</span>
+              <div class="barra-base">
+                <div class="barra ${clase}" style="width: ${valor}%">
+                  <span class="porcentaje">${valor}%</span>
+                </div>
               </div>
             </div>
-          </div>`;
-      });
+          `;
+        });
 
-      // borde foto opcional…
-      const claseTop = colores[top4[0][0]] || "";
-      const foto = document.querySelector('.foto-perfil');
-      if (foto && claseTop) foto.className = `foto-perfil borde-${claseTop}`;
-    } catch(e){
-      console.error("No pude cargar parámetros:", e);
+        // Borde de la foto según parámetro más alto
+        if (top4.length) {
+          const claseTop = colores[top4[0][0]];
+          const foto = document.querySelector('.foto-perfil');
+          foto.className = `foto-perfil borde-${claseTop}`;
+        }
+      } catch (err) {
+        console.error("Error cargando parámetros:", err);
+      }
     }
-  }
 
-  // Chat (si estás en Afinar.html usa el mismo API_BASE)
-  async function enviarMensaje(mensaje) {
-    const r = await fetch(`${API_BASE}/chat`,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ mensaje })
+    // Galería privada (localStorage)
+    const claveFotos = "fotosPerfil";
+    function cargarFoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = input.parentElement.querySelector('img');
+          img.src = e.target.result;
+          img.style.opacity = 1;
+          guardarFotos();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    function guardarFotos() {
+      const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(img => img.src);
+      localStorage.setItem(claveFotos, JSON.stringify(fotos));
+    }
+    function cargarFotosGuardadas() {
+      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos));
+      if (fotosGuardadas) {
+        const imagenes = document.querySelectorAll('.galeria-privada label img');
+        fotosGuardadas.forEach((src, i) => {
+          if (imagenes[i]) {
+            imagenes[i].src = src;
+            imagenes[i].style.opacity = 1;
+          }
+        });
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      cargarParametrosDesdeAPI();
+      cargarFotosGuardadas();
     });
-    const data = await r.json();
-    return data.respuesta || "Lo siento, hubo un problema ❤️";
-  }
-
-  document.addEventListener("DOMContentLoaded", cargarParametros);
-</script>
-
+  </script>
 </body>
 </html>
