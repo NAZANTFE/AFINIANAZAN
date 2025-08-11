@@ -1,1 +1,250 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f6e0dc;
+  margin: 0;
+  padding: 0;
+  color: #1a1a1a;
+}
+
+.contenedor-afinar {
+  max-width: 90%;
+  margin: auto;
+  padding: 4vw;
+  box-sizing: border-box;
+}
+
+/* Logo */
+.logo-contenedor {
+  display: flex;
+  justify-content: center;
+  margin-top: 4vh;
+  margin-bottom: 2vh;
+  position: relative;
+  z-index: 3;
+}
+
+.logo-afinia {
+  width: 22vw;
+  max-width: 120px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Chat */
+.chat-contenedor {
+  background-color: white;
+  padding: 4vw;
+  margin-top: 3vh;
+  margin-bottom: 3vh;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  color: #444;
+  text-align: left;
+  position: relative;
+  z-index: 2;
+}
+
+.mensaje-ia p {
+  background: #fce4ec;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.chat-mensajes {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mensaje {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.mensaje.ia {
+  background-color: #f7f7f7;
+  align-self: flex-start;
+  color: #333;
+}
+
+.mensaje.usuario {
+  background-color: #f78ca2;
+  align-self: flex-end;
+  color: white;
+}
+
+.chat-input,
+.input-chat {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.chat-input input,
+.input-chat input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.chat-input button,
+.input-chat button {
+  background-color: #f78ca2;
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Contenedor de parámetros */
+.contenedor-parametros {
+  background-color: white;
+  border-radius: 20px;
+  padding: 4vw;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  color: #333;
+  margin-bottom: 5vh;
+}
+
+.parametro-afinar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.nombre-parametro {
+  flex: 0 0 130px;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+
+.barra-contenedor {
+  flex: 1;
+  background-color: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.barra {
+  height: 100%;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+}
+
+/* Colores pastel */
+.rosa .barra       { background-color: #f78ca2; }
+.verde .barra      { background-color: #a4eac8; }
+.rojo .barra       { background-color: #f7a1a1; }
+.azul .barra       { background-color: #c7e1f6; }
+.melocoton .barra  { background-color: #fbeac3; }
+.lavanda .barra    { background-color: #e4c7f5; }
+.coral .barra      { background-color: #f7c8b2; }
+.oliva .barra      { background-color: #d4eac1; }
+.lila .barra       { background-color: #d8ccf1; }
+.amarillo .barra   { background-color: #fff0b3; }
+
+.chat-afinia {
+  background-color: white;
+  padding: 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-contenido,
+.mensajes-chat {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 10000px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mensaje-bot, .mensaje-usuario {
+  padding: 10px 14px;
+  border-radius: 16px;
+  max-width: 85%;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.mensaje-bot {
+  background-color: #fce6ec;
+  align-self: flex-start;
+  color: #444;
+}
+
+.mensaje-usuario {
+  background-color: #f78ca2;
+  color: white;
+  align-self: flex-end;
+}
+
+/* MEDIA QUERY PARA MÓVILES PEQUEÑOS */
+@media (max-width: 450px) {
+  .logo-afinia {
+    width: 100px;
+  }
+
+  .nombre-parametro {
+    flex: 0 0 100%;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
+
+  .barra-contenedor {
+    height: 20px;
+  }
+
+  .barra {
+    font-size: 0.8rem;
+  }
+
+  .mensaje {
+    font-size: 0.9rem;
+  }
+}
 
