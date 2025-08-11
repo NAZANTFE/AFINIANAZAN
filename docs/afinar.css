@@ -1,77 +1,71 @@
-/* ======== Estilos generales ======== */
+/* Base */
 body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f6e0dc;
   margin: 0;
-  padding: 0;
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  background-color: #f6e0dc; /* Rosa AfinIA oficial */
+  color: #1a1a1a;
 }
 
-/* ======== Contenedor principal ======== */
 .contenedor-afinar {
-  max-width: 430px; /* Igual que index */
+  max-width: 600px;       /* igual que index */
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 20px;
 }
 
-/* ======== Logo ======== */
-.logo {
+/* Logo (mismo tamaño que index) */
+.logo-contenedor {
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 12px;
-  margin-bottom: 8px;
+  margin: 10px 0 18px;
 }
-
 .logo-afinia {
-  width: 120px; /* Tamaño idéntico al index */
+  width: 120px;
   height: auto;
 }
 
-/* ======== Chat ======== */
+/* Chat */
 .chat-afinia {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 12px;
-  margin-bottom: 16px;
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-}
-
-#mensajes-chat {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 12px;                 /* menos padding para reducir altura */
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 320px;
+  height: 380px;                 /* alto cómodo y estático */
+}
+
+.mensajes-chat {
+  flex: 1;
   overflow-y: auto;
-  padding: 6px;
+  padding-right: 6px;
+}
+
+.mensaje-bot, .mensaje-usuario {
+  padding: 10px 14px;
+  border-radius: 16px;
+  margin-bottom: 8px;
+  max-width: 85%;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .mensaje-bot {
-  background: #fce6ec;
+  background-color: #fce6ec;
   color: #444;
-  padding: 10px 14px;
-  border-radius: 16px;
   align-self: flex-start;
-  max-width: 85%;
-  word-wrap: break-word;
 }
-
 .mensaje-usuario {
-  background: #f78ca2;
+  background-color: #f78ca2;
   color: #fff;
-  padding: 10px 14px;
-  border-radius: 16px;
-  align-self: flex-end;
-  max-width: 85%;
-  text-align: right;
-  word-wrap: break-word;
+  align-self: flex-end;      /* usuario a la derecha */
 }
 
+/* input pegado al fondo, con poco espacio extra */
 .input-chat {
   display: flex;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 6px;           /* menos espacio entre mensajes e input */
 }
-
 .input-chat input {
   flex: 1;
   padding: 10px;
@@ -79,64 +73,75 @@ body {
   border: 1px solid #ccc;
   font-size: 15px;
 }
-
 .input-chat button {
-  padding: 10px 20px;
+  padding: 10px 18px;
   border-radius: 999px;
-  background: #f78ca2;
-  color: #fff;
+  background-color: #f78ca2;
+  color: white;
   border: none;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
 }
 
-/* ======== Parámetros ======== */
+/* Parámetros */
 .contenedor-parametros {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 12px;
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  padding: 20px;
+  margin-top: 16px;
 }
 
 .parametro-afinar {
-  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .nombre-parametro {
-  display: block;
-  font-weight: bold;
+  flex: 0 0 140px;
+  font-weight: 700;
   font-size: 14px;
-  margin-bottom: 4px;
+  color: #333;
 }
 
 .barra-contenedor {
+  position: relative;
+  flex: 1;
   background: #eee;
   border-radius: 999px;
-  overflow: hidden;
   height: 22px;
+  overflow: hidden;
   display: flex;
   align-items: center;
 }
 
 .barra {
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 10px;
-  font-weight: bold;
-  font-size: 13px;
-  color: #444; /* visible incluso si la barra es pequeña */
+  min-width: 0;              /* permite barras pequeñas */
+  border-radius: 999px;
 }
 
-/* ======== Colores de barras ======== */
-.rosa .barra        { background-color: #f78ca2; color: #fff; }
-.verde .barra       { background-color: #a4eac8; }
-.rojo .barra        { background-color: #f7a1a1; }
-.azul .barra        { background-color: #c7e1f6; }
-.melocoton .barra   { background-color: #fbeac3; }
-.lavanda .barra     { background-color: #e4c7f5; }
-.coral .barra       { background-color: #f7c8b2; }
-.oliva .barra       { background-color: #d4eac1; }
-.lila .barra        { background-color: #d8ccf1; }
-.amarillo .barra    { background-color: #fff0b3; }
+/* porcentaje SIEMPRE legible, independiente del ancho de la barra */
+.barra-contenedor .valor {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Colores */
+.rosa .barra      { background-color: #f78ca2; }
+.verde .barra     { background-color: #a4eac8; }
+.rojo .barra      { background-color: #f7a1a1; }
+.azul .barra      { background-color: #c7e1f6; }
+.melocoton .barra { background-color: #fbeac3; }
+.lavanda .barra   { background-color: #e4c7f5; }
+.coral .barra     { background-color: #f7c8b2; }
+.oliva .barra     { background-color: #d4eac1; }
+.lila .barra      { background-color: #d8ccf1; }
+.amarillo .barra  { background-color: #fff0b3; }
