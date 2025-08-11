@@ -1,4 +1,3 @@
-<!-- frontend/Afinar.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,7 +18,7 @@
     <div class="chat-afinia">
       <div class="mensajes-chat" id="mensajes-chat">
         <div class="mensaje-bot">
-          Hola, corazón. Estoy aquí contigo. Si te apetece, cuéntame algo concreto de tu día y seguimos desde ahí.
+          Hola corazón, ¿seguimos afinando? Cuéntame algo de tu día y voy guiándote.
         </div>
       </div>
       <div class="input-chat">
@@ -34,38 +33,47 @@
         <span class="nombre-parametro">Nivel AfinIA</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar verde" data-nombre="Inteligencia">
         <span class="nombre-parametro">Inteligencia</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar rojo" data-nombre="Simpatía">
         <span class="nombre-parametro">Simpatía</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar azul" data-nombre="Comunicación">
         <span class="nombre-parametro">Comunicación</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar melocoton" data-nombre="Carisma">
         <span class="nombre-parametro">Carisma</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar lavanda" data-nombre="Creatividad">
         <span class="nombre-parametro">Creatividad</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar coral" data-nombre="Resolución de conflictos">
         <span class="nombre-parametro">Resolución de conflictos</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar oliva" data-nombre="Iniciativa">
         <span class="nombre-parametro">Iniciativa</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar lila" data-nombre="Organización">
         <span class="nombre-parametro">Organización</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
       </div>
+
       <div class="parametro-afinar amarillo" data-nombre="Impulso personal">
         <span class="nombre-parametro">Impulso personal</span>
         <div class="barra-contenedor"><div class="barra"></div></div>
@@ -74,25 +82,19 @@
   </div>
 
   <script>
-    // ========= Auto-detección backend (local / producción en el mismo dominio) =========
-    const API_BASE = (() => {
-      const h = window.location.hostname;
-      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-      // si sirves frontend estático desde el mismo dominio que el backend en Railway,
-      // dejar vacío usa el mismo host de origen:
-      return "";
-    })();
+    // 🔗 BACKEND Railway (fijo):
+    const API_BASE = "https://afinianazan-production-99ce.up.railway.app";
 
-    // ========= Utilidades UI =========
-    function escribirConEfecto(elemento, texto, velocidad = 22) {
-      elemento.textContent = "";
+    // ----- Efecto typing -----
+    function escribirConEfecto(elemento, texto, velocidad = 25) {
       let i = 0;
+      elemento.textContent = "";
       const timer = setInterval(() => {
-        elemento.textContent += texto[i] || "";
+        elemento.textContent += texto.charAt(i);
         i++;
+        if (i >= texto.length) clearInterval(timer);
         const cont = document.getElementById("mensajes-chat");
         cont.scrollTop = cont.scrollHeight;
-        if (i >= texto.length) clearInterval(timer);
       }, velocidad);
     }
 
@@ -101,12 +103,17 @@
       const msg = document.createElement("div");
       msg.className = clase;
       cont.appendChild(msg);
-      if (typing) escribirConEfecto(msg, texto);
-      else { msg.textContent = texto; cont.scrollTop = cont.scrollHeight; }
+
+      if (typing) {
+        escribirConEfecto(msg, texto);
+      } else {
+        msg.textContent = texto;
+      }
+      cont.scrollTop = cont.scrollHeight;
       return msg;
     }
 
-    // ========= Barras desde backend =========
+    // ----- Cargar parámetros desde backend -----
     async function cargarYpintarParametros() {
       try {
         const r = await fetch(`${API_BASE}/parametros`);
@@ -126,7 +133,7 @@
     }
     document.addEventListener("DOMContentLoaded", cargarYpintarParametros);
 
-    // ========= Chat =========
+    // ----- Chat -----
     const chat = document.getElementById("mensajes-chat");
     const inputUsuario = document.getElementById("entradaUsuario");
     const enviarBtn = document.getElementById("enviarBtn");
@@ -144,9 +151,21 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mensaje }),
         });
-        const data = await res.json();
-        agregarMensaje(data.respuesta || "…", "mensaje-bot", true);
-        await cargarYpintarParametros(); // refresca barras tras cada turno
+
+        const contentType = res.headers.get("content-type") || "";
+        let data;
+        if (contentType.includes("application/json")) {
+          data = await res.json();
+        } else {
+          // Si Railway devolviera HTML por un error proxy
+          const txt = await res.text();
+          data = { respuesta: "", error: txt };
+        }
+
+        agregarMensaje(data.respuesta || data.error || "…", "mensaje-bot", true);
+
+        // refrescar parámetros tras cada turno
+        await cargarYpintarParametros();
       } catch (e) {
         console.error("❌ Error chat:", e);
         agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
@@ -154,7 +173,10 @@
     }
 
     enviarBtn.addEventListener("click", enviarMensaje);
-    inputUsuario.addEventListener("keydown", e => { if (e.key === "Enter") enviarMensaje(); });
+    inputUsuario.addEventListener("keydown", e => {
+      if (e.key === "Enter") enviarMensaje();
+    });
   </script>
+
 </body>
 </html>
