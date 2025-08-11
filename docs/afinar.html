@@ -10,15 +10,19 @@
   <div class="contenedor-afinar">
 
     <!-- LOGO -->
-    <div class="logo-contenedor">
+    <div class="logo">
       <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
     </div>
 
     <!-- CHAT AFINIA -->
-    <div class="chat-afinia" id="chat-afinia">
-      <div class="mensajes-chat" id="mensajes-chat"></div>
+    <div class="chat-afinia">
+      <div class="mensajes-chat" id="mensajes-chat">
+        <div class="mensaje-bot" id="saludo-inicial">
+          Hola, corazón. Gracias por estar aquí. Cuéntame algo sencillo de tu día y seguimos desde ahí 😌
+        </div>
+      </div>
       <div class="input-chat">
-        <input type="text" id="entradaUsuario" placeholder="Escribe algo..." autocomplete="off"/>
+        <input type="text" id="entradaUsuario" placeholder="Escribe algo..." />
         <button id="enviarBtn">Enviar</button>
       </div>
     </div>
@@ -78,71 +82,68 @@
   </div>
 
   <script>
-    // ========= Auto-detección del backend (Local / Railway) =========
+    // ========= Auto-detección (Local / Railway) =========
     const API_BASE = (() => {
       const h = window.location.hostname;
       if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-      // Si el frontend está servido por Railway en el mismo dominio que el backend, deja vacío:
-      return ""; // mismo host
-      // Si tu backend está en otro subdominio, usa:
-      // return "https://tu-subdominio.up.railway.app";
+      return "https://afinianazan-production-99ce.up.railway.app"; // 🔗 tu backend en Railway
     })();
 
-    // ========= Utilidades de UI =========
-    const chatCont = document.getElementById("mensajes-chat");
-    const inputUsuario = document.getElementById("entradaUsuario");
-    const enviarBtn = document.getElementById("enviarBtn");
-
-    function escribirConEfecto(elemento, texto, velocidad = 22) {
+    // ========= Efecto typing =========
+    function escribirConEfecto(elemento, texto, velocidad = 20) {
       let i = 0;
       elemento.textContent = "";
-      const timer = setInterval(() => {
-        elemento.textContent += texto.charAt(i);
-        i++;
-        if (i >= texto.length) clearInterval(timer);
-        chatCont.scrollTop = chatCont.scrollHeight;
+      const id = setInterval(() => {
+        elemento.textContent += texto.charAt(i++);
+        if (i >= texto.length) clearInterval(id);
+        const cont = document.getElementById("mensajes-chat");
+        cont.scrollTop = cont.scrollHeight;
       }, velocidad);
     }
 
     function agregarMensaje(texto, clase, typing = false) {
+      const cont = document.getElementById("mensajes-chat");
       const msg = document.createElement("div");
-      msg.className = clase; // "mensaje-bot" | "mensaje-usuario"
-      chatCont.appendChild(msg);
-      if (typing) {
-        escribirConEfecto(msg, texto);
-      } else {
-        msg.textContent = texto;
-      }
-      chatCont.scrollTop = chatCont.scrollHeight;
+      msg.className = clase;
+      cont.appendChild(msg);
+      typing ? escribirConEfecto(msg, texto) : (msg.textContent = texto);
+      cont.scrollTop = cont.scrollHeight;
       return msg;
     }
 
-    // ========= Parámetros =========
+    // ========= Pintar barras =========
     async function cargarYpintarParametros() {
       try {
         const r = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
-        if (!r.ok) throw new Error("Respuesta no OK");
         const datos = await r.json();
 
-        document.querySelectorAll('.parametro-afinar').forEach(parametro => {
+        document.querySelectorAll(".parametro-afinar").forEach(parametro => {
           const nombre = parametro.dataset.nombre;
-          const valor = datos[nombre];
-          if (valor !== undefined) {
-            const barra = parametro.querySelector('.barra');
-            const pct = Math.max(0, Math.min(100, Math.round(valor)));
-            barra.style.width = pct + '%';
-            barra.textContent = pct + '%';
-          }
+          const barra = parametro.querySelector(".barra");
+          const v = Number(datos[nombre] ?? 0);
+          const valor = Math.max(0, Math.min(100, Math.round(v)));
+          barra.style.width = valor + "%";
+          barra.textContent = valor + "%";
         });
       } catch (err) {
         console.error("Error al cargar parámetros:", err);
       }
     }
 
+    document.addEventListener("DOMContentLoaded", cargarYpintarParametros);
+
     // ========= Chat =========
+    const chat = document.getElementById("mensajes-chat");
+    const inputUsuario = document.getElementById("entradaUsuario");
+    const enviarBtn = document.getElementById("enviarBtn");
+
     async function enviarMensaje() {
       const mensaje = inputUsuario.value.trim();
       if (!mensaje) return;
+
+      // Oculta el primer saludo para que no “re-salude”
+      const s = document.getElementById("saludo-inicial");
+      if (s) s.style.display = "none";
 
       agregarMensaje(mensaje, "mensaje-usuario");
       inputUsuario.value = "";
@@ -155,14 +156,15 @@
         });
 
         const data = await res.json();
-        const texto = data?.respuesta || "Sigo aquí contigo, corazón.";
-        agregarMensaje(texto, "mensaje-bot", true);
-
-        // refrescar parámetros tras la respuesta
-        await cargarYpintarParametros();
+        if (data?.respuesta) {
+          agregarMensaje(data.respuesta, "mensaje-bot", true);
+          await cargarYpintarParametros(); // refresca barras tras cada turno
+        } else {
+          agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
+        }
       } catch (e) {
         console.error("❌ Error chat:", e);
-        agregarMensaje("Ay… parece que hubo un fallo al conectar. Probemos de nuevo en un momento, ¿sí? 💗", "mensaje-bot");
+        agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
       }
     }
 
@@ -170,22 +172,6 @@
     inputUsuario.addEventListener("keydown", e => {
       if (e.key === "Enter") enviarMensaje();
     });
-
-    // ========= Mensaje inicial (solo 1 vez por sesión) + pintar barras =========
-    document.addEventListener("DOMContentLoaded", async () => {
-      await cargarYpintarParametros();
-
-      const yaSaludo = sessionStorage.getItem("afinia_saludo_inicial");
-      if (!yaSaludo) {
-        agregarMensaje(
-          "Estoy contigo. Si te apetece, cuéntame algo pequeño de tu día y vamos afinando poco a poco, sin prisa. 💞",
-          "mensaje-bot",
-          true
-        );
-        sessionStorage.setItem("afinia_saludo_inicial", "1");
-      }
-    });
   </script>
-
 </body>
 </html>
