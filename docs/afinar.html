@@ -10,19 +10,15 @@
   <div class="contenedor-afinar">
 
     <!-- LOGO -->
-    <div class="logo">
+    <div class="logo-contenedor">
       <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
     </div>
 
     <!-- CHAT AFINIA -->
-    <div class="chat-afinia">
-      <div class="mensajes-chat" id="mensajes-chat">
-        <div class="mensaje-bot">
-          Hola corazón, ¿seguimos afinando? Cuéntame algo de tu día y voy guiándote.
-        </div>
-      </div>
+    <div class="chat-afinia" id="chat-afinia">
+      <div class="mensajes-chat" id="mensajes-chat"></div>
       <div class="input-chat">
-        <input type="text" id="entradaUsuario" placeholder="Escribe algo..." />
+        <input type="text" id="entradaUsuario" placeholder="Escribe algo..." autocomplete="off"/>
         <button id="enviarBtn">Enviar</button>
       </div>
     </div>
@@ -31,113 +27,119 @@
     <div class="contenedor-parametros">
       <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA">
         <span class="nombre-parametro">Nivel AfinIA</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar verde" data-nombre="Inteligencia">
         <span class="nombre-parametro">Inteligencia</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar rojo" data-nombre="Simpatía">
         <span class="nombre-parametro">Simpatía</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar azul" data-nombre="Comunicación">
         <span class="nombre-parametro">Comunicación</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar melocoton" data-nombre="Carisma">
         <span class="nombre-parametro">Carisma</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar lavanda" data-nombre="Creatividad">
         <span class="nombre-parametro">Creatividad</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar coral" data-nombre="Resolución de conflictos">
         <span class="nombre-parametro">Resolución de conflictos</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar oliva" data-nombre="Iniciativa">
         <span class="nombre-parametro">Iniciativa</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar lila" data-nombre="Organización">
         <span class="nombre-parametro">Organización</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
 
       <div class="parametro-afinar amarillo" data-nombre="Impulso personal">
         <span class="nombre-parametro">Impulso personal</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
+        <div class="barra-contenedor"><div class="barra">0%</div></div>
       </div>
     </div>
   </div>
 
   <script>
-    // 🔗 BACKEND Railway (fijo):
-    const API_BASE = "https://afinianazan-production-99ce.up.railway.app";
+    // ========= Auto-detección del backend (Local / Railway) =========
+    const API_BASE = (() => {
+      const h = window.location.hostname;
+      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
+      // Si el frontend está servido por Railway en el mismo dominio que el backend, deja vacío:
+      return ""; // mismo host
+      // Si tu backend está en otro subdominio, usa:
+      // return "https://tu-subdominio.up.railway.app";
+    })();
 
-    // ----- Efecto typing -----
-    function escribirConEfecto(elemento, texto, velocidad = 25) {
+    // ========= Utilidades de UI =========
+    const chatCont = document.getElementById("mensajes-chat");
+    const inputUsuario = document.getElementById("entradaUsuario");
+    const enviarBtn = document.getElementById("enviarBtn");
+
+    function escribirConEfecto(elemento, texto, velocidad = 22) {
       let i = 0;
       elemento.textContent = "";
       const timer = setInterval(() => {
         elemento.textContent += texto.charAt(i);
         i++;
         if (i >= texto.length) clearInterval(timer);
-        const cont = document.getElementById("mensajes-chat");
-        cont.scrollTop = cont.scrollHeight;
+        chatCont.scrollTop = chatCont.scrollHeight;
       }, velocidad);
     }
 
     function agregarMensaje(texto, clase, typing = false) {
-      const cont = document.getElementById("mensajes-chat");
       const msg = document.createElement("div");
-      msg.className = clase;
-      cont.appendChild(msg);
-
+      msg.className = clase; // "mensaje-bot" | "mensaje-usuario"
+      chatCont.appendChild(msg);
       if (typing) {
         escribirConEfecto(msg, texto);
       } else {
         msg.textContent = texto;
       }
-      cont.scrollTop = cont.scrollHeight;
+      chatCont.scrollTop = chatCont.scrollHeight;
       return msg;
     }
 
-    // ----- Cargar parámetros desde backend -----
+    // ========= Parámetros =========
     async function cargarYpintarParametros() {
       try {
-        const r = await fetch(`${API_BASE}/parametros`);
+        const r = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
+        if (!r.ok) throw new Error("Respuesta no OK");
         const datos = await r.json();
+
         document.querySelectorAll('.parametro-afinar').forEach(parametro => {
           const nombre = parametro.dataset.nombre;
           const valor = datos[nombre];
           if (valor !== undefined) {
             const barra = parametro.querySelector('.barra');
-            barra.style.width = valor + '%';
-            barra.textContent = valor + '%';
+            const pct = Math.max(0, Math.min(100, Math.round(valor)));
+            barra.style.width = pct + '%';
+            barra.textContent = pct + '%';
           }
         });
       } catch (err) {
         console.error("Error al cargar parámetros:", err);
       }
     }
-    document.addEventListener("DOMContentLoaded", cargarYpintarParametros);
 
-    // ----- Chat -----
-    const chat = document.getElementById("mensajes-chat");
-    const inputUsuario = document.getElementById("entradaUsuario");
-    const enviarBtn = document.getElementById("enviarBtn");
-
+    // ========= Chat =========
     async function enviarMensaje() {
       const mensaje = inputUsuario.value.trim();
       if (!mensaje) return;
@@ -152,29 +154,36 @@
           body: JSON.stringify({ mensaje }),
         });
 
-        const contentType = res.headers.get("content-type") || "";
-        let data;
-        if (contentType.includes("application/json")) {
-          data = await res.json();
-        } else {
-          // Si Railway devolviera HTML por un error proxy
-          const txt = await res.text();
-          data = { respuesta: "", error: txt };
-        }
+        const data = await res.json();
+        const texto = data?.respuesta || "Sigo aquí contigo, corazón.";
+        agregarMensaje(texto, "mensaje-bot", true);
 
-        agregarMensaje(data.respuesta || data.error || "…", "mensaje-bot", true);
-
-        // refrescar parámetros tras cada turno
+        // refrescar parámetros tras la respuesta
         await cargarYpintarParametros();
       } catch (e) {
         console.error("❌ Error chat:", e);
-        agregarMensaje("Lo siento, hubo un error al conectar con la IA.", "mensaje-bot");
+        agregarMensaje("Ay… parece que hubo un fallo al conectar. Probemos de nuevo en un momento, ¿sí? 💗", "mensaje-bot");
       }
     }
 
     enviarBtn.addEventListener("click", enviarMensaje);
     inputUsuario.addEventListener("keydown", e => {
       if (e.key === "Enter") enviarMensaje();
+    });
+
+    // ========= Mensaje inicial (solo 1 vez por sesión) + pintar barras =========
+    document.addEventListener("DOMContentLoaded", async () => {
+      await cargarYpintarParametros();
+
+      const yaSaludo = sessionStorage.getItem("afinia_saludo_inicial");
+      if (!yaSaludo) {
+        agregarMensaje(
+          "Estoy contigo. Si te apetece, cuéntame algo pequeño de tu día y vamos afinando poco a poco, sin prisa. 💞",
+          "mensaje-bot",
+          true
+        );
+        sessionStorage.setItem("afinia_saludo_inicial", "1");
+      }
     });
   </script>
 
