@@ -145,3 +145,10 @@ body {
 .oliva .barra     { background-color: #d4eac1; }
 .lila .barra      { background-color: #d8ccf1; }
 .amarillo .barra  { background-color: #fff0b3; }
+/* --- PARCHE: barras no se llenan cuando valor = 0% --- */
+.parametro-afinar .barra {
+  width: 0% !important;   /* por defecto 0; el JS luego pone el porcentaje real */
+  flex: 0 0 auto !important;  /* evita que se estire por flex */
+  min-width: 0;               /* sin mínimos raros */
+  white-space: nowrap;        /* para que el "0%" no ensanche la barra */
+}
