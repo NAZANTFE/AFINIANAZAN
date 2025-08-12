@@ -23,9 +23,9 @@
       </div>
 
       <div class="info-perfil">
-        <h2>JJ Martín</h2>
-        <p>@jjmartin</p>
-        <p class="rol">CEO y Desarrollador</p>
+        <h2 id="nombreUsuario">JJ Martín</h2>
+        <p id="usuarioArroba">@jjmartin</p>
+        <p class="rol" id="rolUsuario">CEO y Desarrollador</p>
 
         <div class="parametros"></div>
 
@@ -75,6 +75,46 @@
     // Mantén el userId cuando entras a afinar
     const linkAfinar = document.getElementById("linkAfinar");
     linkAfinar.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
+
+    // Personalización de Carolina
+    const fotoPerfil = document.getElementById("fotoPerfil");
+    const nombreUsuario = document.getElementById("nombreUsuario");
+    const usuarioArroba = document.getElementById("usuarioArroba");
+    const rolUsuario = document.getElementById("rolUsuario");
+
+    if (USER_ID === "carolina") {
+      fotoPerfil.src = "carolina.jpg";
+      nombreUsuario.textContent = "Carolina";
+      usuarioArroba.textContent = "@carolina";
+      rolUsuario.textContent = "Perfil de prueba AfinIA";
+
+      // Guardar parámetros iniciales vacíos si no existen
+      fetch(`${API_BASE}/parametros?userId=carolina`)
+        .then(r => r.json())
+        .then(data => {
+          if (Object.keys(data).length === 0) {
+            const parametrosVacios = {
+              "Nivel AfinIA": 0,
+              "Inteligencia": 0,
+              "Simpatía": 0,
+              "Comunicación": 0,
+              "Carisma": 0,
+              "Creatividad": 0,
+              "Resolución de conflictos": 0,
+              "Iniciativa": 0,
+              "Organización": 0,
+              "Impulso personal": 0
+            };
+            fetch(`${API_BASE}/parametros?userId=carolina`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(parametrosVacios)
+            });
+          }
+        });
+
+      alert("💬 ¡Hola! Bienvenida a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
+    }
 
     // ====== Carga de parámetros del usuario ======
     async function cargarParametrosDesdeAPI() {
