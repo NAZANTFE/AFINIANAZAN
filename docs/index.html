@@ -5,6 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Perfil AfinIA</title>
   <link rel="stylesheet" href="estilos-perfil.css"/>
+
+  <style>
+    /* Pequeños refuerzos para visibilidad del % */
+    .parametro { display:flex; align-items:center; gap:10px; }
+    .barra-base { flex:1; height:28px; background:#f1f1f1; border-radius:999px; overflow:hidden; position:relative; }
+    .barra { height:100%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; color:#fff; font-weight:600; border-radius:999px; }
+    .porcentaje-externo { min-width:42px; text-align:right; font-weight:700; color:#333; }
+    /* Colores (ajusta a tus clases existentes) */
+    .verde{background:#7ce9b1}.rojo{background:#f7a1a1}.azul{background:#c7e1f6}.dorado{background:#fbeac3;color:#333}
+    .lavanda{background:#e4c7f5}.coral{background:#f7c8b2}.oliva{background:#d4eac1}.lila{background:#d8ccf1}.amarillo{background:#fff0b3;color:#333}
+
+    /* Foto flotando centrada */
+    .perfil { position:relative; background:#fff; border-radius:20px; padding:120px 20px 20px; }
+    .foto-perfil-progreso { position:absolute; top:-60px; left:50%; transform:translateX(-50%); width:140px; height:140px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#fff; padding:4px; z-index:2; }
+    .foto-perfil { width:130px; height:130px; border-radius:50%; object-fit:cover; border:10px solid transparent; }
+    /* Borde por parámetro top */
+    .borde-verde{border-color:#7ce9b1}.borde-rojo{border-color:#f7a1a1}.borde-azul{border-color:#c7e1f6}
+    .borde-dorado{border-color:#fbeac3}.borde-lavanda{border-color:#e4c7f5}.borde-coral{border-color:#f7c8b2}
+    .borde-oliva{border-color:#d4eac1}.borde-lila{border-color:#d8ccf1}.borde-amarillo{border-color:#fff0b3}
+    /* Encabezado: buscador + botón siempre alineados */
+    header { display:flex; gap:10px; align-items:center; }
+    .buscador { flex:1; padding:12px 16px; border:2px solid #ccc; border-radius:25px; }
+    .boton-plus { width:48px; height:48px; border-radius:50%; border:2px solid #f78ca2; background:#fff; color:#f78ca2; font-size:26px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    /* Misma anchura que Afinar */
+    .contenedor { max-width:600px; margin:auto; padding:20px; }
+    .logo-contenedor { display:flex; justify-content:center; }
+    .logo-afinia { width:120px; height:auto; }
+    .botones-dobles { display:flex; gap:10px; margin-top:24px; }
+    .boton-afinar, .editar { flex:1; padding:10px 0; border-radius:999px; border:none; font-weight:700; }
+    .boton-afinar { background:#f78ca2; color:#fff; text-align:center; text-decoration:none; }
+    .editar { background:#fff; border:2px solid #ddd; }
+    .galeria-privada { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .foto-extra{ width:100%; aspect-ratio:1/1; background:#fcdede; border-radius:12px; overflow:hidden; display:block; }
+    .foto-extra img{ width:100%; height:100%; object-fit:cover; }
+    .input-foto{ display:none; }
+  </style>
 </head>
 <body>
   <div class="contenedor">
@@ -18,18 +54,16 @@
     </header>
 
     <section class="perfil">
-      <!-- foto flotante centrada -->
       <div class="foto-perfil-progreso" id="borde-progreso">
         <img src="foto_perfil.jpg" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil" />
       </div>
 
-      <div class="info-perfil">
-        <h2>JJ Martín</h2>
-        <p>@jjmartin</p>
-        <p class="rol">CEO y Desarrollador</p>
+      <div class="info-perfil" style="text-align:center">
+        <h2 style="margin:6px 0 0;">JJ Martín</h2>
+        <p style="margin:2px 0;color:#666">@jjmartin</p>
+        <p class="rol" style="margin:2px 0 10px; font-style:italic; font-weight:600; color:#888">CEO y Desarrollador</p>
 
-        <!-- PARÁMETROS (se llenan por JS) -->
-        <div class="parametros"></div>
+        <div class="parametros" id="parametros"></div>
 
         <div class="botones-dobles">
           <a href="afinar.html" class="boton-afinar">Afinar</a>
@@ -37,7 +71,6 @@
         </div>
       </div>
 
-      <!-- GALERÍA -->
       <div class="galeria-privada">
         <label class="foto-extra">
           <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
@@ -60,67 +93,87 @@
   </div>
 
   <script>
-    // Auto-detección backend
+    // Auto-detección del backend
     const API_BASE = (() => {
       const h = location.hostname;
       if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
-      return "";
+      return ""; // mismo host (Railway + dominio)
     })();
 
-    async function cargarParametrosDesdeAPI() {
-      try {
-        const res = await fetch(`${API_BASE}/parametros`);
-        const datos = await res.json();
+    // Mapa colores -> clase para borde y barra
+    const colores = {
+      "Inteligencia": "verde",
+      "Simpatía": "rojo",
+      "Comunicación": "azul",
+      "Carisma": "dorado",
+      "Creatividad": "lavanda",
+      "Resolución de conflictos": "coral",
+      "Iniciativa": "oliva",
+      "Organización": "lila",
+      "Impulso personal": "amarillo"
+    };
 
-        const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
-        const top4 = sinNivel.sort((a, b) => b[1] - a[1]).slice(0, 4);
+    async function cargarParametros() {
+      const r = await fetch(`${API_BASE}/parametros`);
+      return await r.json();
+    }
 
-        const colores = {
-          "Inteligencia": "verde",
-          "Simpatía": "rojo",
-          "Comunicación": "azul",
-          "Carisma": "dorado",
-          "Creatividad": "lavanda",
-          "Resolución de conflictos": "coral",
-          "Iniciativa": "oliva",
-          "Organización": "lila",
-          "Impulso personal": "amarillo"
-        };
+    function claseBorde(nombreTop){
+      const mapa = {
+        "Inteligencia":"borde-verde","Simpatía":"borde-rojo","Comunicación":"borde-azul","Carisma":"borde-dorado",
+        "Creatividad":"borde-lavanda","Resolución de conflictos":"borde-coral","Iniciativa":"borde-oliva",
+        "Organización":"borde-lila","Impulso personal":"borde-amarillo"
+      };
+      return mapa[nombreTop] || "";
+    }
 
-        const contenedor = document.querySelector('.parametros');
-        contenedor.innerHTML = '';
+    function pintarBarras(datos){
+      const cont = document.getElementById("parametros");
+      cont.innerHTML = "";
+      // Quitamos "Nivel AfinIA" para el top4
+      const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
+      const top4 = sinNivel.sort((a,b)=>b[1]-a[1]).slice(0,4);
 
-        top4.forEach(([nombre, valor]) => {
-          const clase = colores[nombre] || 'gris';
-          contenedor.innerHTML += `
-            <div class="parametro">
-              <span class="nombre-parametro">${nombre}</span>
-              <div class="barra-base">
-                <div class="barra ${clase}" style="width: ${valor}%"></div>
-                <span class="porcentaje">${valor}%</span>
-              </div>
+      top4.forEach(([nombre, valor]) => {
+        const clase = colores[nombre] || "verde";
+        const wrap = document.createElement("div");
+        wrap.className = "parametro";
+        wrap.innerHTML = `
+          <span class="nombre-parametro" style="min-width:120px; font-weight:700;">${nombre}</span>
+          <div class="barra-base">
+            <div class="barra ${clase}" style="width:${Math.max(2, valor)}%">
             </div>
-          `;
-        });
+          </div>
+          <span class="porcentaje-externo">${valor}%</span>
+        `;
+        cont.appendChild(wrap);
+      });
 
-        // Borde por parámetro top
-        const claseTop = colores[top4[0][0]];
-        const foto = document.getElementById('fotoPerfil');
-        foto.className = `foto-perfil borde-${claseTop}`;
-      } catch (e) {
-        console.error("Error cargando parámetros:", e);
+      // Borde de la foto según el parámetro más alto
+      if (top4.length){
+        const nombreTop = top4[0][0];
+        const foto = document.getElementById("fotoPerfil");
+        foto.className = `foto-perfil ${claseBorde(nombreTop)}`;
       }
     }
+
+    async function init(){
+      try{
+        const datos = await cargarParametros();
+        pintarBarras(datos);
+      }catch(e){
+        console.error("No se pudieron cargar parámetros:", e);
+      }
+    }
+    init();
 
     // Galería
     const claveFotos = "fotosPerfil";
     function cargarFoto(input) {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = e => {
-          const img = input.parentElement.querySelector('img');
-          img.src = e.target.result;
-          img.style.opacity = 1;
+        reader.onload = function(e) {
+          input.parentElement.querySelector('img').src = e.target.result;
           guardarFotos();
         };
         reader.readAsDataURL(input.files[0]);
@@ -133,20 +186,13 @@
     function cargarFotosGuardadas() {
       const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos));
       if (fotosGuardadas) {
-        const imgs = document.querySelectorAll('.galeria-privada label img');
+        const imagenes = document.querySelectorAll('.galeria-privada label img');
         fotosGuardadas.forEach((src, i) => {
-          if (imgs[i]) {
-            imgs[i].src = src;
-            imgs[i].style.opacity = 1;
-          }
+          if (imagenes[i]) imagenes[i].src = src;
         });
       }
     }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      cargarFotosGuardadas();
-      cargarParametrosDesdeAPI();
-    });
+    window.addEventListener("DOMContentLoaded", cargarFotosGuardadas);
   </script>
 </body>
 </html>
