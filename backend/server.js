@@ -7,6 +7,9 @@ require("dotenv").config();
 
 const app = express();
 
+// === NUEVO: Servir frontend estático ===
+app.use(express.static(path.join(__dirname, "public")));
+
 // Permite llamadas desde tu GitHub Pages y local
 app.use(cors({
   origin: [
@@ -36,7 +39,7 @@ function cargarParametros(userId) {
   const file = getUserFile(userId);
   try {
     const parsed = JSON.parse(fs.readFileSync(file, "utf8"));
-    for (const k of PARAMS) if (parsed[k] == null) parsed[k] = 0; // arranque en 0
+    for (const k of PARAMS) if (parsed[k] == null) parsed[k] = 0;
     return parsed;
   } catch {
     const base = {}; for (const k of PARAMS) base[k] = 0; return base;
@@ -49,11 +52,10 @@ function guardarParametros(userId, obj) {
   fs.writeFileSync(file, JSON.stringify(obj, null, 2));
 }
 
-// subida MUY suave
 function mezclaSuavizada(actual, nuevo) {
   const a = Math.max(0, Math.min(100, Number(actual) || 0));
   const n = Math.max(0, Math.min(100, Number(nuevo) || 0));
-  const ema = Math.round(a * 0.97 + n * 0.03); // α=0.03
+  const ema = Math.round(a * 0.97 + n * 0.03);
   const capUp = Math.min(a + 2, 100);
   const capDn = Math.max(a - 2, 0);
   return Math.max(Math.min(ema, capUp), capDn);
