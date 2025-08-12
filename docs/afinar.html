@@ -116,103 +116,121 @@
   </div>
 
   <script>
-    // 🔗 Backend fijo en Railway
-    const API_BASE = "https://afinianazan-production-99ce.up.railway.app";
+  // ====== Historial del chat local (no se pierde al volver) ======
+  const API_BASE = "https://afinianazan-production-99ce.up.railway.app";
+  const CHAT_KEY = "afinia_chat_log_v2";
 
-    // ====== Barras ======
-    async function cargarYpintarParametros() {
-      try {
-        const r = await fetch(`${API_BASE}/parametros`, { credentials: "omit" });
-        const datos = await r.json();
-        document.querySelectorAll('.parametro-afinar').forEach(parametro => {
-          const nombre = parametro.dataset.nombre;
-          const valor = Math.max(0, Math.min(100, Number(datos[nombre] ?? 0)));
-          const barra = parametro.querySelector('.barra');
-          const pct = parametro.querySelector('.pct-next');
-          barra.style.width = valor + '%';
-          if (pct) pct.textContent = valor + '%';
-        });
-      } catch (err) {
-        console.error("Error al cargar parámetros:", err);
-      }
+  function loadLog() {
+    try { return JSON.parse(localStorage.getItem(CHAT_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveLog(log) { localStorage.setItem(CHAT_KEY, JSON.stringify(log)); }
+
+  function renderLog(log) {
+    const cont = document.getElementById("mensajes-chat");
+    cont.innerHTML = "";
+    for (const m of log) {
+      const div = document.createElement("div");
+      div.className = m.role === "assistant" ? "mensaje-bot" : "mensaje-usuario";
+      div.textContent = m.content;
+      cont.appendChild(div);
     }
-    document.addEventListener("DOMContentLoaded", cargarYpintarParametros);
-  </script>
+    cont.scrollTop = cont.scrollHeight;
+  }
 
-  <script>
-    // ====== Historial del chat local (no se pierde al volver) ======
-    const CHAT_KEY = "afinia_chat_log_v2";
-
-    function loadLog() {
-      try { return JSON.parse(localStorage.getItem(CHAT_KEY)) || []; }
-      catch { return []; }
-    }
-    function saveLog(log) { localStorage.setItem(CHAT_KEY, JSON.stringify(log)); }
-    function renderLog(log) {
-      const cont = document.getElementById("mensajes-chat");
-      cont.innerHTML = "";
-      for (const m of log) {
-        const div = document.createElement("div");
-        div.className = m.role === "assistant" ? "mensaje-bot" : "mensaje-usuario";
-        div.textContent = m.content;
-        cont.appendChild(div);
+  // ⌨️ Efecto de escritura (typewriter)
+  function escribirPocoAPoco(div, texto, velocidad = 15, done) {
+    let i = 0;
+    div.textContent = "";
+    const tick = () => {
+      if (i < texto.length) {
+        div.textContent += texto.charAt(i++);
+        const cont = document.getElementById("mensajes-chat");
+        cont.scrollTop = cont.scrollHeight;
+        setTimeout(tick, velocidad);
+      } else if (typeof done === "function") {
+        done();
       }
-      cont.scrollTop = cont.scrollHeight;
-    }
+    };
+    tick();
+  }
 
-    const chatCont = document.getElementById("mensajes-chat");
-    const input = document.getElementById("entradaUsuario");
-    const btn = document.getElementById("enviarBtn");
-    let esperando = false;
+  const chatCont = document.getElementById("mensajes-chat");
+  const input = document.getElementById("entradaUsuario");
+  const btn = document.getElementById("enviarBtn");
+  let esperando = false; // evita doble respuesta
 
-    document.addEventListener("DOMContentLoaded", () => {
-      let log = loadLog();
-      if (log.length === 0) {
-        log = [{ role: "assistant", content: "Hola corazón, gracias por seguir aquí. ¿Qué te está moviendo un poquito estos días?" }];
-        saveLog(log);
-      }
-      renderLog(log);
-    });
-
-    async function enviar() {
-      const texto = input.value.trim();
-      if (!texto || esperando) return;
-
-      let log = loadLog();
-      log.push({ role: "user", content: texto });
+  // Cargar historial al entrar
+  document.addEventListener("DOMContentLoaded", () => {
+    let log = loadLog();
+    if (log.length === 0) {
+      log = [{ role: "assistant", content: "Hola corazón, gracias por seguir aquí. ¿Qué te está moviendo un poquito estos días?" }];
       saveLog(log);
-      renderLog(log);
-      input.value = "";
-      esperando = true;
-
-      try {
-        const res = await fetch(`${API_BASE}/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mensaje: texto })
-        });
-        const data = await res.json();
-        const respuesta = data.respuesta || "…";
-
-        log = loadLog();
-        log.push({ role: "assistant", content: respuesta });
-        saveLog(log);
-        renderLog(log);
-
-        await cargarYpintarParametros();
-      } catch (e) {
-        let logErr = loadLog();
-        logErr.push({ role: "assistant", content: "Lo siento, hubo un error al conectar con la IA." });
-        saveLog(logErr);
-        renderLog(logErr);
-        console.error(e);
-      } finally {
-        esperando = false;
-      }
     }
+    renderLog(log);
+  });
 
-    btn.addEventListener("click", enviar);
-    input.addEventListener("keydown", e => { if (e.key === "Enter") enviar(); });
-  </script>
+  async function enviar() {
+    const texto = input.value.trim();
+    if (!texto || esperando) return;
+
+    // Añade mensaje del usuario
+    let log = loadLog();
+    log.push({ role: "user", content: texto });
+    saveLog(log);
+    renderLog(log);
+    input.value = "";
+    esperando = true;
+    btn.disabled = true;
+    input.disabled = true;
+
+    try {
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensaje: texto })
+      });
+      const data = await res.json();
+      const respuesta = data.respuesta || "…";
+
+      // Guarda la respuesta completa en historial (por si recargas)
+      log = loadLog();
+      log.push({ role: "assistant", content: respuesta });
+      saveLog(log);
+
+      // NO re-renderizamos todo: añadimos un div y lo “escribimos”
+      const div = document.createElement("div");
+      div.className = "mensaje-bot";
+      chatCont.appendChild(div);
+      chatCont.scrollTop = chatCont.scrollHeight;
+
+      escribirPocoAPoco(div, respuesta, 15, async () => {
+        // cuando termine de “escribir”, refrescamos barras y liberamos el bloqueo
+        try {
+          await cargarYpintarParametros();
+        } catch {}
+        esperando = false;
+        btn.disabled = false;
+        input.disabled = false;
+        input.focus();
+      });
+
+    } catch (e) {
+      // Mensaje de error, sin duplicar
+      const div = document.createElement("div");
+      div.className = "mensaje-bot";
+      div.textContent = "Lo siento, hubo un error al conectar con la IA.";
+      chatCont.appendChild(div);
+      chatCont.scrollTop = chatCont.scrollHeight;
+      esperando = false;
+      btn.disabled = false;
+      input.disabled = false;
+      console.error(e);
+    }
+  }
+
+  btn.addEventListener("click", enviar);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") enviar(); });
+</script>
 </body>
 </html>
