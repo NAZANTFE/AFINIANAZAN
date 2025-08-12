@@ -7,57 +7,45 @@ body {
 }
 
 .contenedor {
-  max-width: 90%;
+  max-width: 600px;           /* igual que afinar */
   margin: auto;
-  padding: 4vw;
+  padding: 20px;
   box-sizing: border-box;
 }
 
+/* Logo */
 .logo-contenedor {
   display: flex;
   justify-content: center;
-  margin-top: 0;
-  margin-bottom: 5vh;
+  margin: 0 0 20px;
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
-
 .logo-afinia {
-  width: 20vw;
-  max-width: 120px;
+  width: 120px;
   height: auto;
 }
 
+/* Header: buscador + + alineado derecha */
 header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: -1vh;
-  margin-bottom: 2vh;
-  position: relative;
-  z-index: 2;
+  gap: 10px;
+  margin: 0 0 10px;
 }
-
 .buscador {
-  width: 90%; /* un poco más pequeño que todo el contenedor */
-  max-width: 400px; /* no crece infinito en pantallas grandes */
-  height: 38px; /* más compacto */
+  flex: 1;
+  height: 38px;
   font-size: 15px;
-  padding: 6px 10px;
-  border-radius: 20px; /* más redondeado y moderno */
+  padding: 6px 12px;
+  border-radius: 22px;
   border: 1px solid #ccc;
   outline: none;
-  display: block;
-  margin: 0 auto; /* centrado */
 }
-
-
 .boton-plus {
-  width: 90%;
-  max-width: 52px;
-  height: 13vw;
-  max-height: 52px;
-  font-size: 1.5rem;
+  width: 52px;
+  height: 52px;
+  font-size: 24px;
   border: 2px solid #f78ca2;
   border-radius: 50%;
   background-color: white;
@@ -68,32 +56,29 @@ header {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
+.boton-plus:hover { background-color: #fce7ec; }
 
-.boton-plus:hover {
-  background-color: #fce7ec;
-}
-
+/* Perfil */
 .perfil {
   background-color: white;
   border-radius: 20px;
-  padding: 18vh 5vw 4vh;
+  padding: 100px 20px 20px;   /* deja espacio superior para la foto */
   text-align: center;
   color: #333;
   position: relative;
-  margin-top: 20vh;
-  z-index: 2;
+  margin-top: 70px;           /* baja el bloque para que no pise el header */
+  z-index: 0;
 }
 
+/* Foto centrada y sin solapar */
 .foto-perfil-progreso {
-  width: 30vw;
-  max-width: 140px;
-  height: 30vw;
-  max-height: 140px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   position: absolute;
-  top: -15vw;
+  top: -70px;                 /* justo encima del borde del contenedor */
   left: 50%;
   transform: translateX(-50%);
   background: white;
@@ -101,17 +86,17 @@ header {
   align-items: center;
   justify-content: center;
   padding: 4px;
-  z-index: 4;
+  z-index: 2;
 }
-
 .foto-perfil {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 12px solid transparent;
+  border: 12px solid transparent; /* el color lo pone la clase borde-xxx */
 }
 
+/* Colores de borde según mejor parámetro */
 .borde-verde     { border-color: #7ce9b1; }
 .borde-rojo      { border-color: #f7a1a1; }
 .borde-azul      { border-color: #c7e1f6; }
@@ -123,73 +108,55 @@ header {
 .borde-amarillo  { border-color: #fff0b3; }
 
 .perfil h2 {
-  margin-top: -2vh;
-  margin-bottom: 1vh;
+  margin: 0 0 6px;
   font-size: 2rem;
   font-weight: 600;
   color: #1a1a1a;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
-
-.perfil p {
-  margin: 0.2vh 0;
-  font-size: 1rem;
-  color: #666;
-}
-
+.perfil p { margin: 2px 0; font-size: 1rem; color: #666; }
 .rol {
   font-style: italic;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #888;
-  margin-bottom: 1.5vh;
+  margin-bottom: 14px;
   text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
+/* Parámetros */
 .parametros {
-  margin-top: 4vh;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
-
 .parametro {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 2fr auto; /* nombre | barra | porcentaje */
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
 }
-
 .nombre-parametro {
-  width: 40%;
   font-weight: bold;
   font-size: 1rem;
   color: #1a1a1a;
   text-align: left;
 }
-
 .barra-base {
-  flex: 1;
   height: 26px;
   background-color: #f1f1f1;
   border-radius: 999px;
   display: flex;
   align-items: center;
   overflow: hidden;
-  margin-left: 10px;
 }
-
 .barra {
   height: 100%;
   border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 10px;
-  font-weight: bold;
-  color: white;
-  position: relative;
 }
 
+/* Colores de barras */
 .verde    { background-color: #7ce9b1; }
 .rojo     { background-color: #f7a1a1; }
 .azul     { background-color: #c7e1f6; }
@@ -200,101 +167,80 @@ header {
 .lila     { background-color: #d8ccf1; }
 .amarillo { background-color: #fff0b3; }
 
-.porcentaje {
-  font-size: 0.9rem;
+/* porcentaje SIEMPRE visible fuera de la barra */
+.porcentaje-out {
+  min-width: 48px;
+  text-align: right;
+  font-size: 0.95rem;
   color: #333;
-  margin-left: 6px;
   font-weight: bold;
 }
 
+/* Botones */
 .botones-dobles {
   display: flex;
   justify-content: space-between;
-  margin-top: 5vh;
+  margin-top: 24px;
   gap: 10px;
 }
-
 .botones-dobles button,
 .botones-dobles .boton-afinar {
   width: 50%;
-  padding: 1.2rem 0;
-  font-size: 1.2rem;
+  padding: 12px 0;
+  font-size: 1.1rem;
   font-weight: 600;
   border-radius: 999px;
   border: none;
   cursor: pointer;
   text-align: center;
 }
-
 .boton-afinar {
   background-color: #f78ca2;
   color: white;
   text-decoration: none;
   display: block;
 }
-
 .editar {
   background-color: white;
   color: #4a4a4a;
   border: 2px solid #dddddd;
-  box-shadow: 0px 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
+/* Galería */
 .galeria-privada {
-  margin-top: 6vh;
+  margin-top: 24px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   justify-items: center;
 }
-
 .foto-extra {
-  width: 45vw;
-  max-width: 180px;
-  height: 45vw;
-  max-height: 180px;
+  width: 180px;
+  height: 180px;
+  max-width: 45vw;
+  max-height: 45vw;
   background-color: #fcdede;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
 }
-
 .foto-extra img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.8;
+  opacity: 0.9;
   transition: 0.3s;
 }
+.foto-extra:hover img { opacity: 1; }
+.input-foto { display: none; }
 
-.foto-extra:hover img {
-  opacity: 1;
-}
-
-.input-foto {
-  display: none;
-}
-
-/* MEDIA QUERY PARA MÓVILES PEQUEÑOS */
+/* móvil */
 @media (max-width: 450px) {
-  .logo-afinia {
-    width: 100px;
-  }
-
-  .buscador {
-    font-size: 0.9rem;
-  }
-
-  .rol {
-    font-size: 1.1rem;
-  }
-
-  .barra-base {
-    height: 22px;
-  }
-
-  .porcentaje {
-    font-size: 0.8rem;
-  }
+  .logo-afinia { width: 100px; }
+  .buscador { font-size: 0.95rem; }
+  .rol { font-size: 1.05rem; }
+  .barra-base { height: 22px; }
+  .porcentaje-out { font-size: 0.9rem; }
 }
