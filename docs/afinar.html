@@ -24,7 +24,6 @@
 
     <!-- PARÁMETROS -->
     <div class="contenedor-parametros" id="panel-parametros">
-      <!-- Barras (igual que antes) -->
       <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA"><span class="nombre-parametro">Nivel AfinIA</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
       <div class="parametro-afinar verde" data-nombre="Inteligencia"><span class="nombre-parametro">Inteligencia</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
       <div class="parametro-afinar rojo" data-nombre="Simpatía"><span class="nombre-parametro">Simpatía</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
@@ -46,7 +45,7 @@
       return "https://afinianazan-production-99ce.up.railway.app";
     })();
 
-    // ====== Gestión de userId ======
+    // ====== Gestión de userId (igual que perfil) ======
     function sanitizeId(id) {
       return id.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
     }
@@ -120,7 +119,6 @@
       const texto = input.value.trim();
       if(!texto || esperando) return;
 
-      // Usuario
       let log = loadLog();
       log.push({ role:"user", content:texto });
       saveLog(log);
@@ -138,12 +136,10 @@
         const data = await res.json();
         const respuesta = data.respuesta || "…";
 
-        // Guarda respuesta
         log = loadLog();
         log.push({ role:"assistant", content: respuesta });
         saveLog(log);
 
-        // Efecto de escritura
         const div = document.createElement("div");
         div.className = "mensaje-bot";
         chatCont.appendChild(div);
