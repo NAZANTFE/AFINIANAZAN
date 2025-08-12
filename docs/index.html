@@ -3,58 +3,38 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Perfil AfinIA</title>
-  <link rel="stylesheet" href="estilos-perfil.css"/>
+  <title>Afinar · AfinIA</title>
+  <link rel="stylesheet" href="afinar.css" />
 </head>
 <body>
-  <div class="contenedor">
+  <div class="contenedor-afinar">
+    <!-- LOGO -->
     <div class="logo-contenedor">
-      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
+      <img class="logo-afinia" src="logo_afinia.png" alt="Logo AfinIA">
     </div>
 
-    <header>
-      <input type="text" placeholder="Buscar usuarios..." class="buscador"/>
-      <button class="boton-plus">+</button>
-    </header>
-
-    <section class="perfil">
-      <div class="foto-perfil-progreso" id="borde-progreso">
-        <img src="foto_perfil.jpg" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil" />
+    <!-- CHAT -->
+    <div class="chat-afinia">
+      <div class="mensajes-chat" id="mensajes-chat"></div>
+      <div class="input-chat">
+        <input type="text" id="entradaUsuario" placeholder="Escribe aquí con calma…"/>
+        <button id="enviarBtn">Enviar</button>
       </div>
+    </div>
 
-      <div class="info-perfil">
-        <h2>JJ Martín</h2>
-        <p>@jjmartin</p>
-        <p class="rol">CEO y Desarrollador</p>
-
-        <div class="parametros"></div>
-
-        <div class="botones-dobles">
-          <a id="linkAfinar" href="afinar.html" class="boton-afinar">Afinar</a>
-          <button class="editar">Editar perfil</button>
-        </div>
-      </div>
-
-      <!-- GALERÍA -->
-      <div class="galeria-privada">
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 1" />
-        </label>
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 2" />
-        </label>
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 3" />
-        </label>
-        <label class="foto-extra">
-          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
-          <img src="silueta.png" alt="Foto 4" />
-        </label>
-      </div>
-    </section>
+    <!-- PARÁMETROS -->
+    <div class="contenedor-parametros" id="panel-parametros">
+      <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA"><span class="nombre-parametro">Nivel AfinIA</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar verde" data-nombre="Inteligencia"><span class="nombre-parametro">Inteligencia</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar rojo" data-nombre="Simpatía"><span class="nombre-parametro">Simpatía</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar azul" data-nombre="Comunicación"><span class="nombre-parametro">Comunicación</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar melocoton" data-nombre="Carisma"><span class="nombre-parametro">Carisma</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar lavanda" data-nombre="Creatividad"><span class="nombre-parametro">Creatividad</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos"><span class="nombre-parametro">Resolución de conflictos</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar oliva" data-nombre="Iniciativa"><span class="nombre-parametro">Iniciativa</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar lila" data-nombre="Organización"><span class="nombre-parametro">Organización</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar amarillo" data-nombre="Impulso personal"><span class="nombre-parametro">Impulso personal</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+    </div>
   </div>
 
   <script>
@@ -65,100 +45,131 @@
       return "https://afinianazan-production-99ce.up.railway.app";
     })();
 
-    // ====== userId (desde ?u= o localStorage) ======
-    function sanitizeId(id){ return (id||"").toLowerCase().trim().replace(/[^a-z0-9_-]/g,""); }
+    // ====== Gestión de userId ======
+    function sanitizeId(id) {
+      return id.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
+    }
     const params = new URLSearchParams(location.search);
     let USER_ID = params.get("u") || localStorage.getItem("afinia_user_id") || "default";
-    USER_ID = sanitizeId(USER_ID) || "default";
+    USER_ID = sanitizeId(USER_ID);
     localStorage.setItem("afinia_user_id", USER_ID);
 
-    // Mantén el userId cuando entras a afinar
-    const linkAfinar = document.getElementById("linkAfinar");
-    linkAfinar.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
+    // ====== Historial de chat por usuario ======
+    const CHAT_KEY = `afinia_chat_log_${USER_ID}`;
+    const chatCont = document.getElementById("mensajes-chat");
+    const input = document.getElementById("entradaUsuario");
+    const btn = document.getElementById("enviarBtn");
+    let esperando = false;
 
-    // ====== Carga de parámetros del usuario ======
-    async function cargarParametrosDesdeAPI() {
-      try {
-        const response = await fetch(`${API_BASE}/parametros?userId=${encodeURIComponent(USER_ID)}`, { cache: "no-store" });
-        if (!response.ok) throw new Error("Backend no responde");
-        const datos = await response.json();
+    function loadLog(){ try{ return JSON.parse(localStorage.getItem(CHAT_KEY))||[] }catch{ return [] } }
+    function saveLog(log){ localStorage.setItem(CHAT_KEY, JSON.stringify(log)) }
 
-        const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
-        const top4 = sinNivel.sort((a, b) => b[1] - a[1]).slice(0, 4);
+    function renderLog(log){
+      chatCont.innerHTML = "";
+      for(const m of log){
+        const div = document.createElement("div");
+        div.className = m.role === "assistant" ? "mensaje-bot" : "mensaje-usuario";
+        div.textContent = m.content;
+        chatCont.appendChild(div);
+      }
+      chatCont.scrollTop = chatCont.scrollHeight;
+    }
 
-        const colores = {
-          "Inteligencia": "verde",
-          "Simpatía": "rojo",
-          "Comunicación": "azul",
-          "Carisma": "dorado",
-          "Creatividad": "lavanda",
-          "Resolución de conflictos": "coral",
-          "Iniciativa": "oliva",
-          "Organización": "lila",
-          "Impulso personal": "amarillo"
-        };
+    function escribirPocoAPoco(div, texto, velocidad = 16, done){
+      let i = 0;
+      div.textContent = "";
+      (function tick(){
+        if(i < texto.length){
+          div.textContent += texto.charAt(i++);
+          chatCont.scrollTop = chatCont.scrollHeight;
+          setTimeout(tick, velocidad);
+        } else if(typeof done === "function"){ done(); }
+      })();
+    }
 
-        const contenedor = document.querySelector('.parametros');
-        contenedor.innerHTML = '';
-
-        top4.forEach(([nombre, valor]) => {
-          const clase = colores[nombre] || 'gris';
-          contenedor.innerHTML += `
-            <div class="parametro">
-              <span class="nombre-parametro">${nombre}</span>
-              <div class="barra-base">
-                <div class="barra ${clase}" style="width:${Number(valor)||0}%"></div>
-              </div>
-              <span class="porcentaje-out">${Number(valor)||0}%</span>
-            </div>
-          `;
+    // ====== Cargar parámetros ======
+    async function cargarYpintarParametros(){
+      try{
+        const r = await fetch(`${API_BASE}/parametros?userId=${encodeURIComponent(USER_ID)}`, { cache: "no-store" });
+        const datos = await r.json();
+        document.querySelectorAll(".parametro-afinar").forEach(bloque=>{
+          const nombre = bloque.dataset.nombre;
+          const v = Number(datos[nombre] ?? 0);
+          const barra = bloque.querySelector(".barra");
+          const etiqueta = bloque.querySelector(".valor-porc");
+          barra.style.width = v + "%";
+          etiqueta.textContent = v + "%";
         });
+      }catch(e){ console.warn("No pude cargar parámetros:", e) }
+    }
 
-        if (top4.length) {
-          const claseTop = colores[top4[0][0]];
-          const foto = document.querySelector('.foto-perfil');
-          foto.className = `foto-perfil borde-${claseTop}`;
+    // ====== Inicio ======
+    document.addEventListener("DOMContentLoaded", async () => {
+      let log = loadLog();
+      if (log.length === 0) {
+        if (!localStorage.getItem(`afinia_profile_created_${USER_ID}`)) {
+          log = [{
+            role: "assistant",
+            content: "💬 ¡Hola! Bienvenido a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco geocéntrico 🤦🏼‍♂️)!"
+          }];
+          localStorage.setItem(`afinia_profile_created_${USER_ID}`, "true");
+        } else {
+          log = [{ role: "assistant", content: "Hola, corazón. Si te apetece, cuéntame algo pequeño de tu día y seguimos desde ahí." }];
         }
-      } catch (err) {
-        console.error("Error cargando parámetros:", err);
+        saveLog(log);
       }
-    }
-
-    // ====== Galería privada (localStorage) ======
-    const claveFotos = (u => `fotosPerfil_${u}`)(USER_ID); // por usuario
-    function cargarFoto(input) {
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = input.parentElement.querySelector('img');
-          img.src = e.target.result;
-          img.style.opacity = 1;
-          guardarFotos();
-        };
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-    function guardarFotos() {
-      const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(img => img.src);
-      localStorage.setItem(claveFotos, JSON.stringify(fotos));
-    }
-    function cargarFotosGuardadas() {
-      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos) || "null");
-      if (fotosGuardadas) {
-        const imagenes = document.querySelectorAll('.galeria-privada label img');
-        fotosGuardadas.forEach((src, i) => {
-          if (imagenes[i]) {
-            imagenes[i].src = src;
-            imagenes[i].style.opacity = 1;
-          }
-        });
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      cargarParametrosDesdeAPI();
-      cargarFotosGuardadas();
+      renderLog(log);
+      await cargarYpintarParametros();
     });
+
+    // ====== Envío ======
+    async function enviar(){
+      const texto = input.value.trim();
+      if(!texto || esperando) return;
+
+      let log = loadLog();
+      log.push({ role:"user", content:texto });
+      saveLog(log);
+      renderLog(log);
+
+      input.value = "";
+      esperando = true; btn.disabled = true; input.disabled = true;
+
+      try{
+        const res = await fetch(`${API_BASE}/chat?userId=${encodeURIComponent(USER_ID)}`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ mensaje: texto })
+        });
+        const data = await res.json();
+        const respuesta = data.respuesta || "…";
+
+        log = loadLog();
+        log.push({ role:"assistant", content: respuesta });
+        saveLog(log);
+
+        const div = document.createElement("div");
+        div.className = "mensaje-bot";
+        chatCont.appendChild(div);
+        chatCont.scrollTop = chatCont.scrollHeight;
+
+        escribirPocoAPoco(div, respuesta, 16, async ()=>{
+          esperando = false; btn.disabled = false; input.disabled = false; input.focus();
+          await cargarYpintarParametros();
+        });
+      }catch(e){
+        const div = document.createElement("div");
+        div.className = "mensaje-bot";
+        div.textContent = "Lo siento, hubo un error al conectar con la IA.";
+        chatCont.appendChild(div);
+        chatCont.scrollTop = chatCont.scrollHeight;
+        esperando = false; btn.disabled = false; input.disabled = false;
+        console.error(e);
+      }
+    }
+
+    btn.addEventListener("click", enviar);
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") enviar() });
   </script>
 </body>
 </html>
