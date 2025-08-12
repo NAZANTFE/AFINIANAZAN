@@ -81,106 +81,80 @@
     const usuarioArroba = document.getElementById("usuarioArroba");
     const rolUsuario = document.getElementById("rolUsuario");
 
-    // Personalización de Carolina
+    // ---- Carolina ----
     if (USER_ID === "carolina") {
       fotoPerfil.src = "carolina.jpg";
       nombreUsuario.textContent = "Carolina";
       usuarioArroba.textContent = "@carolina";
       rolUsuario.textContent = "Perfil de prueba AfinIA";
 
-      fetch(`${API_BASE}/parametros?userId=carolina`)
-        .then(r => r.json())
-        .then(data => {
-          if (Object.keys(data).length === 0) {
-            const parametrosVacios = {
-              "Nivel AfinIA": 0,
-              "Inteligencia": 0,
-              "Simpatía": 0,
-              "Comunicación": 0,
-              "Carisma": 0,
-              "Creatividad": 0,
-              "Resolución de conflictos": 0,
-              "Iniciativa": 0,
-              "Organización": 0,
-              "Impulso personal": 0
-            };
-            fetch(`${API_BASE}/guardar-parametros`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: "carolina", parametros: parametrosVacios })
-            });
-          }
-        });
+      // inicializa valores si no existen
+      fetch(`${API_BASE}/parametros?userId=carolina`).then(r=>r.json()).then(data=>{
+        if (Object.keys(data).length === 0) {
+          const parametrosVacios = {
+            "Nivel AfinIA": 0, "Inteligencia": 0, "Simpatía": 0, "Comunicación": 0,
+            "Carisma": 0, "Creatividad": 0, "Resolución de conflictos": 0,
+            "Iniciativa": 0, "Organización": 0, "Impulso personal": 0
+          };
+          fetch(`${API_BASE}/guardar-parametros`, {
+            method: "POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ userId:"carolina", parametros:parametrosVacios })
+          });
+        }
+      });
 
-      alert("💬 ¡Hola! Bienvenida a tu perfil de prueba en AfinIA 🌸...");
+      alert("💬 ¡Hola! Bienvenida a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
     }
 
-    // Personalización de Hugo
+    // ---- Hugo ----
     if (USER_ID === "hugo") {
       fotoPerfil.src = "hugo.jpg";
       nombreUsuario.textContent = "Hugo";
       usuarioArroba.textContent = "@hugo";
       rolUsuario.textContent = "Perfil de prueba AfinIA";
 
-      fetch(`${API_BASE}/parametros?userId=hugo`)
-        .then(r => r.json())
-        .then(data => {
-          if (Object.keys(data).length === 0) {
-            const parametrosVacios = {
-              "Nivel AfinIA": 0,
-              "Inteligencia": 0,
-              "Simpatía": 0,
-              "Comunicación": 0,
-              "Carisma": 0,
-              "Creatividad": 0,
-              "Resolución de conflictos": 0,
-              "Iniciativa": 0,
-              "Organización": 0,
-              "Impulso personal": 0
-            };
-            fetch(`${API_BASE}/guardar-parametros`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: "hugo", parametros: parametrosVacios })
-            });
-          }
-        });
+      fetch(`${API_BASE}/parametros?userId=hugo`).then(r=>r.json()).then(data=>{
+        if (Object.keys(data).length === 0) {
+          const parametrosVacios = {
+            "Nivel AfinIA": 0, "Inteligencia": 0, "Simpatía": 0, "Comunicación": 0,
+            "Carisma": 0, "Creatividad": 0, "Resolución de conflictos": 0,
+            "Iniciativa": 0, "Organización": 0, "Impulso personal": 0
+          };
+          fetch(`${API_BASE}/guardar-parametros`, {
+            method: "POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ userId:"hugo", parametros:parametrosVacios })
+          });
+        }
+      });
 
-      alert("💬 ¡Hola Hugo! Bienvenido a tu perfil de prueba en AfinIA 🌸...");
+      alert("💬 ¡Hola Hugo! Bienvenido a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
     }
 
-    // Personalización de Tania
+    // ---- Tania ----
     if (USER_ID === "tania") {
       fotoPerfil.src = "tania.jpg";
       nombreUsuario.textContent = "Tania";
       usuarioArroba.textContent = "@tania";
       rolUsuario.textContent = "Perfil de prueba AfinIA";
 
-      fetch(`${API_BASE}/parametros?userId=tania`)
-        .then(r => r.json())
-        .then(data => {
-          if (Object.keys(data).length === 0) {
-            const parametrosVacios = {
-              "Nivel AfinIA": 0,
-              "Inteligencia": 0,
-              "Simpatía": 0,
-              "Comunicación": 0,
-              "Carisma": 0,
-              "Creatividad": 0,
-              "Resolución de conflictos": 0,
-              "Iniciativa": 0,
-              "Organización": 0,
-              "Impulso personal": 0
-            };
-            fetch(`${API_BASE}/guardar-parametros`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: "tania", parametros: parametrosVacios })
-            });
-          }
-        });
+      fetch(`${API_BASE}/parametros?userId=tania`).then(r=>r.json()).then(data=>{
+        if (Object.keys(data).length === 0) {
+          const parametrosVacios = {
+            "Nivel AfinIA": 0, "Inteligencia": 0, "Simpatía": 0, "Comunicación": 0,
+            "Carisma": 0, "Creatividad": 0, "Resolución de conflictos": 0,
+            "Iniciativa": 0, "Organización": 0, "Impulso personal": 0
+          };
+          fetch(`${API_BASE}/guardar-parametros`, {
+            method: "POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ userId:"tania", parametros:parametrosVacios })
+          });
+        }
+      });
 
-      alert("💬 ¡Hola Tania! Bienvenida a tu perfil de prueba en AfinIA 🌸...");
+      alert("💬 ¡Hola Tania! Bienvenida a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
     }
 
     // ====== Carga de parámetros del usuario ======
