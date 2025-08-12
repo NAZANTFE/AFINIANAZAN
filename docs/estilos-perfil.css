@@ -346,3 +346,79 @@ body{
   .barra-contenedor{ height:20px }
   .valor-porc{ font-size:11px }
 }
+/* ==== Contenedor: mismo ancho que Afinar y sin desbordes ==== */
+*{ box-sizing: border-box; }
+.contenedor{
+  max-width: 600px;      /* igual que Afinar */
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* ==== Barras: grid responsivo y sin desbordes ==== */
+.parametro{
+  display: grid;
+  grid-template-columns: 150px 1fr 48px; /* desktop */
+  align-items: center;
+  gap: 12px;
+}
+
+.nombre-parametro{
+  width: auto; 
+  text-align: left;
+  overflow-wrap: anywhere;   /* si algún nombre es largo, que parta línea */
+}
+
+.barra-base{
+  min-width: 0;   /* IMPORTANTÍSIMO: permite encoger la barra sin romper layout */
+  width: 100%;
+  margin-left: 0;
+}
+
+/* Porcentaje alineado y fijo */
+.porcentaje{
+  width: 48px;
+  text-align: right;
+  margin-left: 0;
+}
+
+/* ==== Galería: que no se salga y sea fluida ==== */
+.galeria-privada{
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  justify-items: stretch;
+}
+
+.foto-extra{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  max-width: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ==== Ajustes para móviles pequeños ==== */
+@media (max-width: 430px){
+  /* Nombre más estrecho, % un pelín más compacto */
+  .parametro{
+    grid-template-columns: 112px 1fr 40px;
+    gap: 10px;
+  }
+  .porcentaje{ width: 40px; }
+
+  /* Tipos un poco menores para que todo respire */
+  .nombre-parametro{ font-size: 0.98rem; }
+  .barra-base{ height: 22px; }
+}
+
+/* Móviles muy pequeños (opcional) */
+@media (max-width: 360px){
+  .parametro{
+    grid-template-columns: 100px 1fr 38px;
+    gap: 8px;
+  }
+  .porcentaje{ width: 38px; }
+}
