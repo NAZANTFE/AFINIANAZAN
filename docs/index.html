@@ -88,7 +88,6 @@
       usuarioArroba.textContent = "@carolina";
       rolUsuario.textContent = "Perfil de prueba AfinIA";
 
-      // Guardar parámetros iniciales vacíos si no existen
       fetch(`${API_BASE}/parametros?userId=carolina`)
         .then(r => r.json())
         .then(data => {
@@ -114,6 +113,40 @@
         });
 
       alert("💬 ¡Hola! Bienvenida a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
+    }
+
+    // Personalización de Hugo
+    if (USER_ID === "hugo") {
+      fotoPerfil.src = "hugo.jpg";
+      nombreUsuario.textContent = "Hugo";
+      usuarioArroba.textContent = "@hugo";
+      rolUsuario.textContent = "Perfil de prueba AfinIA";
+
+      fetch(`${API_BASE}/parametros?userId=hugo`)
+        .then(r => r.json())
+        .then(data => {
+          if (Object.keys(data).length === 0) {
+            const parametrosVacios = {
+              "Nivel AfinIA": 0,
+              "Inteligencia": 0,
+              "Simpatía": 0,
+              "Comunicación": 0,
+              "Carisma": 0,
+              "Creatividad": 0,
+              "Resolución de conflictos": 0,
+              "Iniciativa": 0,
+              "Organización": 0,
+              "Impulso personal": 0
+            };
+            fetch(`${API_BASE}/parametros?userId=hugo`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(parametrosVacios)
+            });
+          }
+        });
+
+      alert("💬 ¡Hola Hugo! Bienvenido a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO 'JJ' 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
     }
 
     // ====== Carga de parámetros del usuario ======
@@ -165,7 +198,7 @@
     }
 
     // ====== Galería privada (localStorage) ======
-    const claveFotos = (u => `fotosPerfil_${u}`)(USER_ID); // por usuario
+    const claveFotos = (u => `fotosPerfil_${u}`)(USER_ID);
     function cargarFoto(input) {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
