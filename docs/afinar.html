@@ -17,17 +17,7 @@
     <div class="chat-afinia">
       <div class="mensajes-chat" id="mensajes-chat"></div>
       <div class="input-chat">
-        <!-- atributos para ayudar al teclado del móvil -->
-        <input
-          type="text"
-          id="entradaUsuario"
-          placeholder="Escribe aquí con calma…"
-          autocapitalize="sentences"
-          autocomplete="on"
-          autocorrect="on"
-          spellcheck="true"
-          inputmode="text"
-        />
+        <input type="text" id="entradaUsuario" placeholder="Escribe aquí con calma…"/>
         <button id="enviarBtn">Enviar</button>
       </div>
     </div>
@@ -162,108 +152,6 @@
       }
       renderLog(log);
       await cargarYpintarParametros();
-    });
-
-    // ====== Autocorrector “tipo iPhone” (básico + fuzzy) ======
-    // 1) Diccionario rápido (puedes añadir/editar aquí)
-    const AUTO_DICC = {
-      "q": "que", "xq": "porque", "pq": "porque", "xk": "porque",
-      "k": "que", "tmb": "también", "tb": "también",
-      "bn": "bien", "bno": "bueno", "d": "de", "pa": "para",
-      "qtal": "qué tal", "holi": "hola", "ola": "hola",
-      "inteligensia": "inteligencia",
-      "comuniacion": "comunicación",
-      "organisación": "organización",
-      "empatia": "empatía",
-      "cocidrulo": "cocodrilo"  // tu ejemplo 💘
-    };
-
-    // 2) Lista de palabras válidas (para fuzzy). Añade las que te interesen
-    const WORDLIST = new Set([
-      "hola","que","qué","porque","bien","bueno","también","para","gracias","corazón",
-      "inteligencia","simpatía","comunicación","carisma","creatividad",
-      "resolución","conflictos","iniciativa","organización","impulso","personal",
-      "empatía","cocodrilo","día","hoy","estoy","me","siento","ayuda","charlar"
-    ]);
-
-    // 3) Distancia de Levenshtein simple
-    function lev(a,b){
-      const m = a.length, n = b.length;
-      if(!m) return n; if(!n) return m;
-      const dp = Array.from({length:m+1}, ()=>Array(n+1).fill(0));
-      for(let i=0;i<=m;i++) dp[i][0]=i;
-      for(let j=0;j<=n;j++) dp[0][j]=j;
-      for(let i=1;i<=m;i++){
-        for(let j=1;j<=n;j++){
-          const cost = a[i-1]===b[j-1]?0:1;
-          dp[i][j] = Math.min(
-            dp[i-1][j]+1,
-            dp[i][j-1]+1,
-            dp[i-1][j-1]+cost
-          );
-        }
-      }
-      return dp[m][n];
-    }
-
-    // 4) Buscar mejor candidata por distancia (umbral pequeño para no molestar)
-    function mejorSugerencia(token){
-      const lower = token.toLowerCase();
-      if (AUTO_DICC[lower]) return AUTO_DICC[lower];
-      let mejor = null, mejorScore = Infinity;
-      for(const w of WORDLIST){
-        const d = lev(lower, w.toLowerCase());
-        if (d < mejorScore){ mejorScore = d; mejor = w; }
-      }
-      // umbral: largo ≤4 => d<=1, si no => d<=2
-      const umbral = lower.length <= 4 ? 1 : 2;
-      if (mejor && mejorScore <= umbral) return conservarMayus(token, mejor);
-      return null;
-    }
-
-    function conservarMayus(original, corregida){
-      // si original empieza en mayúscula, capitalizamos la corregida
-      if (/^[A-ZÁÉÍÓÚÑ]/.test(original)) {
-        return corregida.charAt(0).toUpperCase() + corregida.slice(1);
-      }
-      return corregida;
-    }
-
-    function autocorregirUltimaPalabra() {
-      const pos = input.selectionStart;
-      const texto = input.value;
-      // tomamos desde el inicio hasta el cursor
-      const antes = texto.slice(0, pos);
-      // separa por espacios/puntuación conservando el separador
-      const partes = antes.split(/(\s+|[.,;:!?]+)/);
-      if (partes.length === 0) return;
-
-      // busca el último “token” que sea palabra
-      for (let i = partes.length - 1; i >= 0; i--) {
-        const token = partes[i];
-        if (token && /^[A-Za-zÁÉÍÓÚáéíóúÑñüÜ]+$/.test(token)) {
-          const sugerencia = mejorSugerencia(token);
-          if (sugerencia && sugerencia !== token) {
-            partes[i] = sugerencia;
-            const nuevoAntes = partes.join("");
-            const nuevoTexto = nuevoAntes + texto.slice(pos);
-            const delta = nuevoAntes.length - antes.length;
-            input.value = nuevoTexto;
-            // recoloca el cursor donde estaba, ajustado
-            input.setSelectionRange(pos + delta, pos + delta);
-          }
-          break;
-        }
-      }
-    }
-
-    // Corrige al pulsar espacio/Enter/puntuación
-    input.addEventListener("keydown", (e) => {
-      const teclasDisparo = [" ", "Enter", ".", ",", ";", ":", "!", "?"];
-      if (teclasDisparo.includes(e.key)) {
-        // ejecutamos tras aplicar la tecla (microtask)
-        setTimeout(autocorregirUltimaPalabra, 0);
-      }
     });
 
     // ====== Envío ======
