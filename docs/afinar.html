@@ -1,81 +1,210 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Afinar</title>
-    <link rel="stylesheet" href="afinar.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Afinar · AfinIA</title>
+  <link rel="stylesheet" href="afinar.css" />
 </head>
 <body>
-    <div class="contenedor-principal">
-        <!-- Logo -->
-        <div class="logo-container">
-            <img src="logo.png" alt="Logo AfinIA" class="logo">
-        </div>
-
-        <!-- Contenedor del chat -->
-        <div class="chat-container">
-            <div id="chat">
-                <div class="mensaje-bot">Hola JJ, ¿qué tal estás hoy? 💬</div>
-            </div>
-
-            <!-- Input con autocorrector -->
-            <div class="input-container">
-                <input 
-                    type="text" 
-                    id="entradaUsuario" 
-                    placeholder="Escribe un mensaje..."
-                    autocorrect="on" 
-                    autocapitalize="sentences" 
-                    spellcheck="true">
-                <button id="enviarBtn">Enviar</button>
-            </div>
-        </div>
-
-        <!-- Parámetros -->
-        <div class="parametros-container">
-            <div class="parametro">
-                <span class="nombre-parametro">Nivel AfinIA</span>
-                <div class="barra">
-                    <div class="relleno" id="barra-nivel"></div>
-                    <span class="porcentaje" id="porcentaje-nivel">0%</span>
-                </div>
-            </div>
-
-            <div class="parametro">
-                <span class="nombre-parametro">Inteligencia</span>
-                <div class="barra">
-                    <div class="relleno" id="barra-inteligencia"></div>
-                    <span class="porcentaje" id="porcentaje-inteligencia">0%</span>
-                </div>
-            </div>
-
-            <div class="parametro">
-                <span class="nombre-parametro">Simpatía</span>
-                <div class="barra">
-                    <div class="relleno" id="barra-simpatia"></div>
-                    <span class="porcentaje" id="porcentaje-simpatia">0%</span>
-                </div>
-            </div>
-
-            <div class="parametro">
-                <span class="nombre-parametro">Comunicación</span>
-                <div class="barra">
-                    <div class="relleno" id="barra-comunicacion"></div>
-                    <span class="porcentaje" id="porcentaje-comunicacion">0%</span>
-                </div>
-            </div>
-
-            <div class="parametro">
-                <span class="nombre-parametro">Carisma</span>
-                <div class="barra">
-                    <div class="relleno" id="barra-carisma"></div>
-                    <span class="porcentaje" id="porcentaje-carisma">0%</span>
-                </div>
-            </div>
-        </div>
+  <div class="contenedor-afinar">
+    <!-- LOGO (mismo estilo que index) -->
+    <div class="logo-contenedor">
+      <img class="logo-afinia" src="logo_afinia.png" alt="Logo AfinIA">
     </div>
 
-    <script src="afinar.js"></script>
+    <!-- CHAT -->
+    <div class="chat-afinia">
+      <div class="mensajes-chat" id="mensajes-chat"></div>
+      <div class="input-chat">
+        <input type="text" id="entradaUsuario" placeholder="Escribe aquí con calma…"/>
+        <button id="enviarBtn">Enviar</button>
+      </div>
+    </div>
+
+    <!-- PARÁMETROS -->
+    <div class="contenedor-parametros" id="panel-parametros">
+      <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA">
+        <span class="nombre-parametro">Nivel AfinIA</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar verde" data-nombre="Inteligencia">
+        <span class="nombre-parametro">Inteligencia</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar rojo" data-nombre="Simpatía">
+        <span class="nombre-parametro">Simpatía</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar azul" data-nombre="Comunicación">
+        <span class="nombre-parametro">Comunicación</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar melocoton" data-nombre="Carisma">
+        <span class="nombre-parametro">Carisma</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar lavanda" data-nombre="Creatividad">
+        <span class="nombre-parametro">Creatividad</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos">
+        <span class="nombre-parametro">Resolución de conflictos</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar oliva" data-nombre="Iniciativa">
+        <span class="nombre-parametro">Iniciativa</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar lila" data-nombre="Organización">
+        <span class="nombre-parametro">Organización</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+
+      <div class="parametro-afinar amarillo" data-nombre="Impulso personal">
+        <span class="nombre-parametro">Impulso personal</span>
+        <div class="barra-contenedor"><div class="barra"></div></div>
+        <span class="valor-porc">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Auto-detección backend (local ↔ Railway) ======
+    const API_BASE = (() => {
+      const h = location.hostname;
+      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
+      return "https://afinianazan-production-99ce.up.railway.app";
+    })();
+
+    // ====== Historial persistente ======
+    const CHAT_KEY = "afinia_chat_log_v3";
+    const chatCont = document.getElementById("mensajes-chat");
+    const input = document.getElementById("entradaUsuario");
+    const btn = document.getElementById("enviarBtn");
+    let esperando = false; // evita dobles respuestas
+
+    function loadLog(){ try{ return JSON.parse(localStorage.getItem(CHAT_KEY))||[] }catch{ return [] } }
+    function saveLog(log){ localStorage.setItem(CHAT_KEY, JSON.stringify(log)) }
+
+    function renderLog(log){
+      chatCont.innerHTML = "";
+      for(const m of log){
+        const div = document.createElement("div");
+        div.className = m.role === "assistant" ? "mensaje-bot" : "mensaje-usuario";
+        div.textContent = m.content;
+        chatCont.appendChild(div);
+      }
+      chatCont.scrollTop = chatCont.scrollHeight;
+    }
+
+    function escribirPocoAPoco(div, texto, velocidad = 16, done){
+      let i = 0;
+      div.textContent = "";
+      (function tick(){
+        if(i < texto.length){
+          div.textContent += texto.charAt(i++);
+          chatCont.scrollTop = chatCont.scrollHeight;
+          setTimeout(tick, velocidad);
+        } else if(typeof done === "function"){ done(); }
+      })();
+    }
+
+    // ====== Parámetros ======
+    async function cargarYpintarParametros(){
+      try{
+        const r = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
+        const datos = await r.json();
+        document.querySelectorAll(".parametro-afinar").forEach(bloque=>{
+          const nombre = bloque.dataset.nombre;
+          const v = Number(datos[nombre] ?? 0);
+          const barra = bloque.querySelector(".barra");
+          const etiqueta = bloque.querySelector(".valor-porc");
+          barra.style.width = v + "%";
+          etiqueta.textContent = v + "%";
+        });
+      }catch(e){ console.warn("No pude cargar parámetros:", e) }
+    }
+
+    // ====== Inicio ======
+    document.addEventListener("DOMContentLoaded", async ()=>{
+      let log = loadLog();
+      if(log.length === 0){
+        log = [{ role:"assistant", content:"Hola, corazón. Si te apetece, cuéntame algo pequeño de tu día y seguimos desde ahí." }];
+        saveLog(log);
+      }
+      renderLog(log);
+      await cargarYpintarParametros();
+    });
+
+    // ====== Envío ======
+    async function enviar(){
+      const texto = input.value.trim();
+      if(!texto || esperando) return;
+
+      // añade usuario
+      let log = loadLog();
+      log.push({ role:"user", content:texto });
+      saveLog(log);
+      renderLog(log);
+
+      input.value = "";
+      esperando = true; btn.disabled = true; input.disabled = true;
+
+      try{
+        const res = await fetch(`${API_BASE}/chat`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ mensaje: texto })
+        });
+        const data = await res.json();
+        const respuesta = data.respuesta || "…";
+
+        // guarda respuesta
+        log = loadLog();
+        log.push({ role:"assistant", content: respuesta });
+        saveLog(log);
+
+        // escribe con efecto sin borrar lo anterior
+        const div = document.createElement("div");
+        div.className = "mensaje-bot";
+        chatCont.appendChild(div);
+        chatCont.scrollTop = chatCont.scrollHeight;
+
+        escribirPocoAPoco(div, respuesta, 16, async ()=>{
+          esperando = false; btn.disabled = false; input.disabled = false; input.focus();
+          await cargarYpintarParametros();
+        });
+      }catch(e){
+        const div = document.createElement("div");
+        div.className = "mensaje-bot";
+        div.textContent = "Lo siento, hubo un error al conectar con la IA.";
+        chatCont.appendChild(div);
+        chatCont.scrollTop = chatCont.scrollHeight;
+        esperando = false; btn.disabled = false; input.disabled = false;
+        console.error(e);
+      }
+    }
+
+    btn.addEventListener("click", enviar);
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") enviar() });
+  </script>
 </body>
 </html>
