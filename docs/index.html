@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Perfil AfinIA</title>
   <link rel="stylesheet" href="estilos-perfil.css"/>
@@ -14,7 +14,7 @@
 
     <header>
       <input type="text" placeholder="Buscar usuarios..." class="buscador"/>
-      <button class="boton-plus" title="Cambiar/crear perfil">+</button>
+      <button class="boton-plus">+</button>
     </header>
 
     <section class="perfil">
@@ -30,7 +30,7 @@
         <div class="parametros"></div>
 
         <div class="botones-dobles">
-          <a href="afinar.html" id="linkAfinar" class="boton-afinar">Afinar</a>
+          <a id="linkAfinar" href="afinar.html" class="boton-afinar">Afinar</a>
           <button class="editar">Editar perfil</button>
         </div>
       </div>
@@ -57,36 +57,26 @@
     </section>
   </div>
 
-  <!-- Auto-detección backend (local / Railway) -->
   <script>
+    // ====== Auto-detección backend ======
     const API_BASE = (() => {
       const h = location.hostname;
       if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
       return "https://afinianazan-production-99ce.up.railway.app";
     })();
 
-    // ====== Gestión de perfil (userId) ======
-    function sanitizeId(id) {
-      return id.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
-    }
-    let USER_ID = localStorage.getItem("afinia_user_id") || "default";
-    USER_ID = sanitizeId(USER_ID);
+    // ====== userId (desde ?u= o localStorage) ======
+    function sanitizeId(id){ return (id||"").toLowerCase().trim().replace(/[^a-z0-9_-]/g,""); }
+    const params = new URLSearchParams(location.search);
+    let USER_ID = params.get("u") || localStorage.getItem("afinia_user_id") || "default";
+    USER_ID = sanitizeId(USER_ID) || "default";
     localStorage.setItem("afinia_user_id", USER_ID);
 
-    function setUserId(newId) {
-      USER_ID = sanitizeId(newId || "default");
-      localStorage.setItem("afinia_user_id", USER_ID);
-      // Actualiza enlace a Afinar con query
-      const link = document.getElementById("linkAfinar");
-      if (link) link.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
-      // Recarga datos del perfil y galería de este usuario
-      cargarParametrosDesdeAPI();
-      cargarFotosGuardadas(true);
-    }
-  </script>
+    // Mantén el userId cuando entras a afinar
+    const linkAfinar = document.getElementById("linkAfinar");
+    linkAfinar.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
 
-  <!-- Carga parámetros + galería -->
-  <script>
+    // ====== Carga de parámetros del usuario ======
     async function cargarParametrosDesdeAPI() {
       try {
         const response = await fetch(`${API_BASE}/parametros?userId=${encodeURIComponent(USER_ID)}`, { cache: "no-store" });
@@ -117,14 +107,13 @@
             <div class="parametro">
               <span class="nombre-parametro">${nombre}</span>
               <div class="barra-base">
-                <div class="barra ${clase}" style="width:${valor}%"></div>
+                <div class="barra ${clase}" style="width:${Number(valor)||0}%"></div>
               </div>
-              <span class="porcentaje-out">${valor}%</span>
+              <span class="porcentaje-out">${Number(valor)||0}%</span>
             </div>
           `;
         });
 
-        // Borde de la foto según parámetro más alto
         if (top4.length) {
           const claseTop = colores[top4[0][0]];
           const foto = document.querySelector('.foto-perfil');
@@ -135,11 +124,8 @@
       }
     }
 
-    // ====== Galería privada (localStorage por usuario) ======
-    function claveFotosActual() {
-      return `fotosPerfil_${USER_ID}`;
-    }
-
+    // ====== Galería privada (localStorage) ======
+    const claveFotos = (u => `fotosPerfil_${u}`)(USER_ID); // por usuario
     function cargarFoto(input) {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -152,53 +138,26 @@
         reader.readAsDataURL(input.files[0]);
       }
     }
-
     function guardarFotos() {
       const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(img => img.src);
-      localStorage.setItem(claveFotosActual(), JSON.stringify(fotos));
+      localStorage.setItem(claveFotos, JSON.stringify(fotos));
     }
-
-    function cargarFotosGuardadas(resetPlaceholders = false) {
-      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotosActual()));
-      const imagenes = document.querySelectorAll('.galeria-privada label img');
-
-      if (resetPlaceholders && !fotosGuardadas) {
-        // Si cambiamos de usuario y no hay fotos guardadas, resetea a silueta
-        imagenes.forEach(img => { img.src = "silueta.png"; img.style.opacity = 1; });
-        return;
-      }
-
+    function cargarFotosGuardadas() {
+      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos) || "null");
       if (fotosGuardadas) {
+        const imagenes = document.querySelectorAll('.galeria-privada label img');
         fotosGuardadas.forEach((src, i) => {
           if (imagenes[i]) {
             imagenes[i].src = src;
             imagenes[i].style.opacity = 1;
           }
         });
-      } else {
-        // Si no hay nada guardado, asegura siluetas
-        imagenes.forEach(img => { img.src = "silueta.png"; img.style.opacity = 1; });
       }
     }
 
-    // ====== Eventos de inicio + botón "+" para cambiar perfil ======
     window.addEventListener("DOMContentLoaded", () => {
-      // Link a afinar con el perfil actual
-      const link = document.getElementById("linkAfinar");
-      if (link) link.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
-
       cargarParametrosDesdeAPI();
       cargarFotosGuardadas();
-
-      // Botón "+" => cambiar o crear perfil
-      const plus = document.querySelector(".boton-plus");
-      plus?.addEventListener("click", () => {
-        const name = prompt("Nombre del perfil (letras/números/_-). Por ejemplo: andres, sara, juan...");
-        if (!name) return;
-        const clean = sanitizeId(name);
-        if (!clean) return alert("Nombre no válido 💗");
-        setUserId(clean);
-      });
     });
   </script>
 </body>
