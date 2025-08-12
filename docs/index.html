@@ -14,7 +14,7 @@
 
     <header>
       <input type="text" placeholder="Buscar usuarios..." class="buscador"/>
-      <button class="boton-plus">+</button>
+      <button class="boton-plus" title="Cambiar/crear perfil">+</button>
     </header>
 
     <section class="perfil">
@@ -30,7 +30,7 @@
         <div class="parametros"></div>
 
         <div class="botones-dobles">
-          <a href="afinar.html" class="boton-afinar">Afinar</a>
+          <a href="afinar.html" id="linkAfinar" class="boton-afinar">Afinar</a>
           <button class="editar">Editar perfil</button>
         </div>
       </div>
@@ -64,13 +64,32 @@
       if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
       return "https://afinianazan-production-99ce.up.railway.app";
     })();
+
+    // ====== Gestión de perfil (userId) ======
+    function sanitizeId(id) {
+      return id.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
+    }
+    let USER_ID = localStorage.getItem("afinia_user_id") || "default";
+    USER_ID = sanitizeId(USER_ID);
+    localStorage.setItem("afinia_user_id", USER_ID);
+
+    function setUserId(newId) {
+      USER_ID = sanitizeId(newId || "default");
+      localStorage.setItem("afinia_user_id", USER_ID);
+      // Actualiza enlace a Afinar con query
+      const link = document.getElementById("linkAfinar");
+      if (link) link.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
+      // Recarga datos del perfil y galería de este usuario
+      cargarParametrosDesdeAPI();
+      cargarFotosGuardadas(true);
+    }
   </script>
 
   <!-- Carga parámetros + galería -->
   <script>
     async function cargarParametrosDesdeAPI() {
       try {
-        const response = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
+        const response = await fetch(`${API_BASE}/parametros?userId=${encodeURIComponent(USER_ID)}`, { cache: "no-store" });
         if (!response.ok) throw new Error("Backend no responde");
         const datos = await response.json();
 
@@ -116,8 +135,11 @@
       }
     }
 
-    // Galería privada (localStorage)
-    const claveFotos = "fotosPerfil";
+    // ====== Galería privada (localStorage por usuario) ======
+    function claveFotosActual() {
+      return `fotosPerfil_${USER_ID}`;
+    }
+
     function cargarFoto(input) {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -130,26 +152,53 @@
         reader.readAsDataURL(input.files[0]);
       }
     }
+
     function guardarFotos() {
       const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(img => img.src);
-      localStorage.setItem(claveFotos, JSON.stringify(fotos));
+      localStorage.setItem(claveFotosActual(), JSON.stringify(fotos));
     }
-    function cargarFotosGuardadas() {
-      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos));
+
+    function cargarFotosGuardadas(resetPlaceholders = false) {
+      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotosActual()));
+      const imagenes = document.querySelectorAll('.galeria-privada label img');
+
+      if (resetPlaceholders && !fotosGuardadas) {
+        // Si cambiamos de usuario y no hay fotos guardadas, resetea a silueta
+        imagenes.forEach(img => { img.src = "silueta.png"; img.style.opacity = 1; });
+        return;
+      }
+
       if (fotosGuardadas) {
-        const imagenes = document.querySelectorAll('.galeria-privada label img');
         fotosGuardadas.forEach((src, i) => {
           if (imagenes[i]) {
             imagenes[i].src = src;
             imagenes[i].style.opacity = 1;
           }
         });
+      } else {
+        // Si no hay nada guardado, asegura siluetas
+        imagenes.forEach(img => { img.src = "silueta.png"; img.style.opacity = 1; });
       }
     }
 
+    // ====== Eventos de inicio + botón "+" para cambiar perfil ======
     window.addEventListener("DOMContentLoaded", () => {
+      // Link a afinar con el perfil actual
+      const link = document.getElementById("linkAfinar");
+      if (link) link.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
+
       cargarParametrosDesdeAPI();
       cargarFotosGuardadas();
+
+      // Botón "+" => cambiar o crear perfil
+      const plus = document.querySelector(".boton-plus");
+      plus?.addEventListener("click", () => {
+        const name = prompt("Nombre del perfil (letras/números/_-). Por ejemplo: andres, sara, juan...");
+        if (!name) return;
+        const clean = sanitizeId(name);
+        if (!clean) return alert("Nombre no válido 💗");
+        setUserId(clean);
+      });
     });
   </script>
 </body>
