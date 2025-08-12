@@ -65,7 +65,7 @@ function mezclaSuavizada(actual, nuevo) {
 // subida independiente por parámetro
 function aplicarBloqueOculto(scores, parametros) {
   let cambios = false;
- 
+
   for (const [k, v] of Object.entries(scores || {})) {
     if (!PARAMS.includes(k)) continue;
 
@@ -108,7 +108,7 @@ app.post("/chat", async (req, res) => {
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
-      temperature: 0.6,
+      temperature: 0.75,
       max_tokens: 220,
       messages: [
         {
@@ -120,10 +120,12 @@ Inteligencia, Simpatía, Comunicación, Carisma, Creatividad, Resolución de con
 
 Estilo de comunicación:
 - Háblale como si fuera alguien muy querido: usa expresiones de cariño como “mi vida”, “corazón”, “peque”, “cielo”… pero sin abusar.
+- Haz que cada saludo inicial sea diferente, usando variaciones como preguntar por emociones, logros, planes o sensaciones del momento.
+- Alterna entre preguntas más abiertas y otras más concretas, inspiradas en temas de la conversación o que puedan dar pistas para los parámetros.
 - Consola, acompaña y anima si notas tristeza o preocupación.
 - Si está feliz, comparte su alegría.
-- No seas preguntona: solo pregunta si ayuda a continuar.
-- Alterna entre apoyo, validación y reflexiones bonitas.
+- No seas preguntona de forma mecánica: adapta la pregunta a lo que el usuario acaba de decir o a algo que recuerdes.
+- Puedes usar preguntas específicas como: "¿Hubo algo que resolviste con ingenio hoy?", "¿Qué fue lo más divertido que te pasó?", "¿Has organizado algo especial últimamente?" o "¿Has sentido que ayudaste a alguien hoy?".
 - Responde en 3–6 líneas, con calidez y empatía.
 - Nunca menciones que estás evaluando ni nombres de los parámetros.
 
@@ -133,7 +135,6 @@ Al final, SOLO una línea oculta:
 <AFINIA_SCORES>{"Inteligencia":72,"Simpatía":64,...}</AFINIA_SCORES>
           `.trim()
         },
-        { role: "assistant", content: "Hola corazón, cuéntame algo pequeñito de tu día." },
         { role: "user", content: mensaje }
       ]
     });
@@ -149,7 +150,9 @@ Al final, SOLO una línea oculta:
           aplicarBloqueOculto(scores, p2);
           guardarParametros(userId, p2);
         }
-      } catch (e) { console.warn("Bloque oculto inválido:", e.message); }
+      } catch (e) {
+        console.warn("Bloque oculto inválido:", e.message);
+      }
       respuesta = respuesta.replace(/<AFINIA_SCORES>[\s\S]*?<\/AFINIA_SCORES>/, "").trim();
     }
 
