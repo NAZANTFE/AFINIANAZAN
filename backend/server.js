@@ -74,7 +74,7 @@ function aplicarBloqueOculto(scores, parametros) {
     const n = Math.max(0, Math.min(100, Number(v) || 0));
     const ema = Math.round(a * (1 - factor) + n * factor);
 
-    const capUp = Math.min(a + 2, 100);
+    const capUp = Math.min(a + 5, 100);
     const capDn = Math.max(a - 2, 0);
 
     const nuevo = Math.max(Math.min(ema, capUp), capDn);
