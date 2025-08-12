@@ -67,8 +67,8 @@ function aplicarBloqueOculto(scores, parametros) {
 
     let factor = 0.03;
 
-    if ((parametros[k] ?? 0) > 70 && v > parametros[k]) factor = 0.02;
-    if ((parametros[k] ?? 0) < 30 && v > parametros[k]) factor = 0.06;
+    if ((parametros[k] ?? 0) > 70 && v > parametros[k]) factor = 0.06;
+    if ((parametros[k] ?? 0) < 30 && v > parametros[k]) factor = 0.18;
 
     const a = Math.max(0, Math.min(100, Number(parametros[k]) || 0));
     const n = Math.max(0, Math.min(100, Number(v) || 0));
