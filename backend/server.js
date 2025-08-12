@@ -52,6 +52,7 @@ function guardarParametros(userId, obj) {
   fs.writeFileSync(file, JSON.stringify(obj, null, 2));
 }
 
+// subida MUY suave por defecto
 function mezclaSuavizada(actual, nuevo) {
   const a = Math.max(0, Math.min(100, Number(actual) || 0));
   const n = Math.max(0, Math.min(100, Number(nuevo) || 0));
@@ -61,16 +62,41 @@ function mezclaSuavizada(actual, nuevo) {
   return Math.max(Math.min(ema, capUp), capDn);
 }
 
+// subida independiente por parámetro
 function aplicarBloqueOculto(scores, parametros) {
   let cambios = false;
+ 
   for (const [k, v] of Object.entries(scores || {})) {
     if (!PARAMS.includes(k)) continue;
-    const nuevo = mezclaSuavizada(parametros[k] ?? 0, v);
-    if (nuevo !== parametros[k]) { parametros[k] = nuevo; cambios = true; }
+
+    let factor = 0.03; // base
+
+    // Si ya es alto y quiere subir, más difícil
+    if ((parametros[k] ?? 0) > 70 && v > parametros[k]) factor = 0.015;
+
+    // Si es bajo y la IA lo detecta más alto, más fácil
+    if ((parametros[k] ?? 0) < 30 && v > parametros[k]) factor = 0.05;
+
+    const a = Math.max(0, Math.min(100, Number(parametros[k]) || 0));
+    const n = Math.max(0, Math.min(100, Number(v) || 0));
+    const ema = Math.round(a * (1 - factor) + n * factor);
+
+    const capUp = Math.min(a + 2, 100);
+    const capDn = Math.max(a - 2, 0);
+
+    const nuevo = Math.max(Math.min(ema, capUp), capDn);
+
+    if (nuevo !== parametros[k]) {
+      parametros[k] = nuevo;
+      cambios = true;
+    }
   }
+
+  // Nivel AfinIA como media del resto
   const base = PARAMS.filter(p => p !== "Nivel AfinIA");
-  const media = Math.round(base.reduce((s,k)=>s+(parametros[k]??0),0)/base.length) || 0;
+  const media = Math.round(base.reduce((s, k) => s + (parametros[k] ?? 0), 0) / base.length) || 0;
   parametros["Nivel AfinIA"] = mezclaSuavizada(parametros["Nivel AfinIA"] ?? 0, media);
+
   return cambios;
 }
 
@@ -141,8 +167,8 @@ app.get("/parametros", (req, res) => {
 
 app.post("/guardar-parametros", (req, res) => {
   const { userId, parametros } = req.body;
-  try { guardarParametros(userId, parametros); res.json({ ok:true }); }
-  catch { res.status(500).json({ error:"No se pudo guardar" }); }
+  try { guardarParametros(userId, parametros); res.json({ ok: true }); }
+  catch { res.status(500).json({ error: "No se pudo guardar" }); }
 });
 
 const PORT = process.env.PORT || 8080;
