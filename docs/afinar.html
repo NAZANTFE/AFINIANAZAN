@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="contenedor-afinar">
-    <!-- LOGO (mismo estilo que index) -->
+    <!-- LOGO -->
     <div class="logo-contenedor">
       <img class="logo-afinia" src="logo_afinia.png" alt="Logo AfinIA">
     </div>
@@ -24,82 +24,43 @@
 
     <!-- PARÁMETROS -->
     <div class="contenedor-parametros" id="panel-parametros">
-      <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA">
-        <span class="nombre-parametro">Nivel AfinIA</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar verde" data-nombre="Inteligencia">
-        <span class="nombre-parametro">Inteligencia</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar rojo" data-nombre="Simpatía">
-        <span class="nombre-parametro">Simpatía</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar azul" data-nombre="Comunicación">
-        <span class="nombre-parametro">Comunicación</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar melocoton" data-nombre="Carisma">
-        <span class="nombre-parametro">Carisma</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar lavanda" data-nombre="Creatividad">
-        <span class="nombre-parametro">Creatividad</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos">
-        <span class="nombre-parametro">Resolución de conflictos</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar oliva" data-nombre="Iniciativa">
-        <span class="nombre-parametro">Iniciativa</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar lila" data-nombre="Organización">
-        <span class="nombre-parametro">Organización</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
-
-      <div class="parametro-afinar amarillo" data-nombre="Impulso personal">
-        <span class="nombre-parametro">Impulso personal</span>
-        <div class="barra-contenedor"><div class="barra"></div></div>
-        <span class="valor-porc">0%</span>
-      </div>
+      <!-- Barras (igual que antes) -->
+      <div class="parametro-afinar rosa" data-nombre="Nivel AfinIA"><span class="nombre-parametro">Nivel AfinIA</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar verde" data-nombre="Inteligencia"><span class="nombre-parametro">Inteligencia</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar rojo" data-nombre="Simpatía"><span class="nombre-parametro">Simpatía</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar azul" data-nombre="Comunicación"><span class="nombre-parametro">Comunicación</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar melocoton" data-nombre="Carisma"><span class="nombre-parametro">Carisma</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar lavanda" data-nombre="Creatividad"><span class="nombre-parametro">Creatividad</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar coral" data-nombre="Resolución de conflictos"><span class="nombre-parametro">Resolución de conflictos</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar oliva" data-nombre="Iniciativa"><span class="nombre-parametro">Iniciativa</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar lila" data-nombre="Organización"><span class="nombre-parametro">Organización</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
+      <div class="parametro-afinar amarillo" data-nombre="Impulso personal"><span class="nombre-parametro">Impulso personal</span><div class="barra-contenedor"><div class="barra"></div></div><span class="valor-porc">0%</span></div>
     </div>
   </div>
 
   <script>
-    // ====== Auto-detección backend (local ↔ Railway) ======
+    // ====== Auto-detección backend ======
     const API_BASE = (() => {
       const h = location.hostname;
       if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
       return "https://afinianazan-production-99ce.up.railway.app";
     })();
 
-    // ====== Historial persistente ======
-    const CHAT_KEY = "afinia_chat_log_v3";
+    // ====== Gestión de userId ======
+    function sanitizeId(id) {
+      return id.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
+    }
+    const params = new URLSearchParams(location.search);
+    let USER_ID = params.get("u") || localStorage.getItem("afinia_user_id") || "default";
+    USER_ID = sanitizeId(USER_ID);
+    localStorage.setItem("afinia_user_id", USER_ID);
+
+    // ====== Historial de chat por usuario ======
+    const CHAT_KEY = `afinia_chat_log_${USER_ID}`;
     const chatCont = document.getElementById("mensajes-chat");
     const input = document.getElementById("entradaUsuario");
     const btn = document.getElementById("enviarBtn");
-    let esperando = false; // evita dobles respuestas
+    let esperando = false;
 
     function loadLog(){ try{ return JSON.parse(localStorage.getItem(CHAT_KEY))||[] }catch{ return [] } }
     function saveLog(log){ localStorage.setItem(CHAT_KEY, JSON.stringify(log)) }
@@ -127,10 +88,10 @@
       })();
     }
 
-    // ====== Parámetros ======
+    // ====== Cargar parámetros ======
     async function cargarYpintarParametros(){
       try{
-        const r = await fetch(`${API_BASE}/parametros`, { cache: "no-store" });
+        const r = await fetch(`${API_BASE}/parametros?userId=${encodeURIComponent(USER_ID)}`, { cache: "no-store" });
         const datos = await r.json();
         document.querySelectorAll(".parametro-afinar").forEach(bloque=>{
           const nombre = bloque.dataset.nombre;
@@ -159,7 +120,7 @@
       const texto = input.value.trim();
       if(!texto || esperando) return;
 
-      // añade usuario
+      // Usuario
       let log = loadLog();
       log.push({ role:"user", content:texto });
       saveLog(log);
@@ -169,7 +130,7 @@
       esperando = true; btn.disabled = true; input.disabled = true;
 
       try{
-        const res = await fetch(`${API_BASE}/chat`, {
+        const res = await fetch(`${API_BASE}/chat?userId=${encodeURIComponent(USER_ID)}`, {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
           body: JSON.stringify({ mensaje: texto })
@@ -177,12 +138,12 @@
         const data = await res.json();
         const respuesta = data.respuesta || "…";
 
-        // guarda respuesta
+        // Guarda respuesta
         log = loadLog();
         log.push({ role:"assistant", content: respuesta });
         saveLog(log);
 
-        // escribe con efecto sin borrar lo anterior
+        // Efecto de escritura
         const div = document.createElement("div");
         div.className = "mensaje-bot";
         chatCont.appendChild(div);
