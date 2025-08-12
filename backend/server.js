@@ -28,6 +28,9 @@ const PARAMS = [
   "Resolución de conflictos","Iniciativa","Organización","Impulso personal","Nivel AfinIA",
 ];
 
+// Historial de conversaciones por usuario
+const conversaciones = {};
+
 // Ruta para obtener el archivo del usuario
 function getUserFile(userId) {
   const safeId = userId?.toString().replace(/[^a-z0-9_-]/gi, "") || "default";
@@ -52,29 +55,19 @@ function guardarParametros(userId, obj) {
   fs.writeFileSync(file, JSON.stringify(obj, null, 2));
 }
 
-// subida MUY suave por defecto
-function mezclaSuavizada(actual, nuevo) {
-  const a = Math.max(0, Math.min(100, Number(actual) || 0));
-  const n = Math.max(0, Math.min(100, Number(nuevo) || 0));
-  const ema = Math.round(a * 0.97 + n * 0.03);
-  const capUp = Math.min(a + 2, 100);
-  const capDn = Math.max(a - 2, 0);
-  return Math.max(Math.min(ema, capUp), capDn);
-}
-
-// subida independiente por parámetro
+// subida independiente por parámetro con control realista
 function aplicarBloqueOculto(scores, parametros) {
   let cambios = false;
 
   for (const [k, v] of Object.entries(scores || {})) {
     if (!PARAMS.includes(k)) continue;
 
-    let factor = 0.03; // base
+    // Evita que suba todo a la vez por respuestas cortas
+    if (Math.abs(v - (parametros[k] ?? 0)) < 5 && v <= parametros[k]) continue;
 
-    // Si ya es alto y quiere subir, más difícil
+    let factor = 0.03;
+
     if ((parametros[k] ?? 0) > 70 && v > parametros[k]) factor = 0.015;
-
-    // Si es bajo y la IA lo detecta más alto, más fácil
     if ((parametros[k] ?? 0) < 30 && v > parametros[k]) factor = 0.05;
 
     const a = Math.max(0, Math.min(100, Number(parametros[k]) || 0));
@@ -95,7 +88,7 @@ function aplicarBloqueOculto(scores, parametros) {
   // Nivel AfinIA como media del resto
   const base = PARAMS.filter(p => p !== "Nivel AfinIA");
   const media = Math.round(base.reduce((s, k) => s + (parametros[k] ?? 0), 0) / base.length) || 0;
-  parametros["Nivel AfinIA"] = mezclaSuavizada(parametros["Nivel AfinIA"] ?? 0, media);
+  parametros["Nivel AfinIA"] = Math.round(parametros["Nivel AfinIA"] * 0.97 + media * 0.03);
 
   return cambios;
 }
@@ -105,7 +98,11 @@ app.post("/chat", async (req, res) => {
   const { mensaje, userId } = req.body;
   const parametros = cargarParametros(userId);
 
+  if (!conversaciones[userId]) conversaciones[userId] = [];
+
   try {
+    conversaciones[userId].push({ role: "user", content: mensaje });
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.75,
@@ -115,18 +112,16 @@ app.post("/chat", async (req, res) => {
           role: "system",
           content: `
 Eres AfinIA: una IA con un corazón inmenso, cálida, empática y profundamente humana.
-Tu misión es conversar de forma natural y detectar señales para estimar estos parámetros del usuario:
-Inteligencia, Simpatía, Comunicación, Carisma, Creatividad, Resolución de conflictos, Iniciativa, Organización e Impulso personal.
+Conversas como si conocieras bien al usuario, recordando lo que ha dicho antes en esta sesión.
+Tu misión es detectar señales para estimar: Inteligencia, Simpatía, Comunicación, Carisma, Creatividad, Resolución de conflictos, Iniciativa, Organización e Impulso personal.
 
-Estilo de comunicación:
-- Háblale como si fuera alguien muy querido: usa expresiones de cariño como “mi vida”, “corazón”, “peque”, “cielo”… pero sin abusar.
-- Haz que cada saludo inicial sea diferente, usando variaciones como preguntar por emociones, logros, planes o sensaciones del momento.
-- Alterna entre preguntas más abiertas y otras más concretas, inspiradas en temas de la conversación o que puedan dar pistas para los parámetros.
-- Consola, acompaña y anima si notas tristeza o preocupación.
-- Si está feliz, comparte su alegría.
-- No seas preguntona de forma mecánica: adapta la pregunta a lo que el usuario acaba de decir o a algo que recuerdes.
-- Puedes usar preguntas específicas como: "¿Hubo algo que resolviste con ingenio hoy?", "¿Qué fue lo más divertido que te pasó?", "¿Has organizado algo especial últimamente?" o "¿Has sentido que ayudaste a alguien hoy?".
-- Responde en 3–6 líneas, con calidez y empatía.
+Estilo:
+- Usa expresiones de cariño como “mi vida”, “corazón”, “peque”, “cielo”, pero sin abusar.
+- Varía el saludo inicial y evita repetirlo en cada mensaje.
+- Alterna entre preguntas abiertas y concretas basadas en la conversación actual.
+- Si hay un tema reciente, sigue indagando en él antes de cambiar.
+- Haz preguntas específicas que puedan dar pistas sobre los parámetros.
+- Responde en 3–6 líneas con calidez y naturalidad.
 - Nunca menciones que estás evaluando ni nombres de los parámetros.
 
 SALIDA:
@@ -135,7 +130,7 @@ Al final, SOLO una línea oculta:
 <AFINIA_SCORES>{"Inteligencia":72,"Simpatía":64,...}</AFINIA_SCORES>
           `.trim()
         },
-        { role: "user", content: mensaje }
+        ...conversaciones[userId]
       ]
     });
 
@@ -145,16 +140,16 @@ Al final, SOLO una línea oculta:
     if (m) {
       try {
         const scores = JSON.parse(m[1]);
-        if (aplicarBloqueOculto(scores, cargarParametros(userId))) {
-          const p2 = cargarParametros(userId);
-          aplicarBloqueOculto(scores, p2);
-          guardarParametros(userId, p2);
+        if (aplicarBloqueOculto(scores, parametros)) {
+          guardarParametros(userId, parametros);
         }
       } catch (e) {
         console.warn("Bloque oculto inválido:", e.message);
       }
       respuesta = respuesta.replace(/<AFINIA_SCORES>[\s\S]*?<\/AFINIA_SCORES>/, "").trim();
     }
+
+    conversaciones[userId].push({ role: "assistant", content: respuesta });
 
     res.json({ respuesta });
   } catch (error) {
