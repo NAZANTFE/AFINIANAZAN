@@ -1,77 +1,99 @@
-/* Base y contenedor común con afinar */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f6e0dc;
   margin: 0;
+  padding: 0;
   color: #1a1a1a;
 }
+
 .contenedor {
-  max-width: 600px;     /* igual que afinar */
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 90%;
+  margin: auto;
+  padding: 4vw;
+  box-sizing: border-box;
 }
 
-/* Logo igual que afinar */
 .logo-contenedor {
   display: flex;
   justify-content: center;
-  margin: 10px 0 18px;
+  margin-top: 0;
+  margin-bottom: 5vh;
+  position: relative;
+  z-index: 3;
 }
+
 .logo-afinia {
-  width: 120px;
+  width: 20vw;
+  max-width: 120px;
   height: auto;
 }
 
-/* Header */
 header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  margin-top: -1vh;
+  margin-bottom: 2vh;
+  position: relative;
+  z-index: 2;
 }
+
 .buscador {
-  flex: 1;
-  padding: 12px 14px;
-  font-size: 16px;
-  border: 2px solid #ccc;
-  border-radius: 25px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+  width: 90%; /* un poco más pequeño que todo el contenedor */
+  max-width: 400px; /* no crece infinito en pantallas grandes */
+  height: 38px; /* más compacto */
+  font-size: 15px;
+  padding: 6px 10px;
+  border-radius: 20px; /* más redondeado y moderno */
+  border: 1px solid #ccc;
+  outline: none;
+  display: block;
+  margin: 0 auto; /* centrado */
 }
+
+
 .boton-plus {
-  width: 48px;
-  height: 48px;
-  font-size: 26px;
+  width: 90%;
+  max-width: 52px;
+  height: 13vw;
+  max-height: 52px;
+  font-size: 1.5rem;
   border: 2px solid #f78ca2;
   border-radius: 50%;
-  background: #fff;
+  background-color: white;
   color: #f78ca2;
-  font-weight: 700;
+  font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Tarjeta perfil */
+.boton-plus:hover {
+  background-color: #fce7ec;
+}
+
 .perfil {
-  position: relative;
-  background: #fff;
-  color: #333;
+  background-color: white;
   border-radius: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  padding: 90px 20px 20px;   /* espacio para la foto flotante */
-  margin-top: 60px;
+  padding: 18vh 5vw 4vh;
   text-align: center;
+  color: #333;
+  position: relative;
+  margin-top: 20vh;
+  z-index: 2;
 }
 
-/* Foto flotante centrada */
 .foto-perfil-progreso {
-  width: 130px;
-  height: 130px;
+  width: 30vw;
+  max-width: 140px;
+  height: 30vw;
+  max-height: 140px;
   border-radius: 50%;
   position: absolute;
-  top: -60px;                 /* flota encima de la tarjeta */
+  top: -15vw;
   left: 50%;
   transform: translateX(-50%);
   background: white;
@@ -79,16 +101,17 @@ header {
   align-items: center;
   justify-content: center;
   padding: 4px;
-}
-.foto-perfil {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 10px solid transparent; /* se colorea según el top parámetro */
-  object-fit: cover;
+  z-index: 4;
 }
 
-/* Bordes por parámetro top */
+.foto-perfil {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 12px solid transparent;
+}
+
 .borde-verde     { border-color: #7ce9b1; }
 .borde-rojo      { border-color: #f7a1a1; }
 .borde-azul      { border-color: #c7e1f6; }
@@ -99,160 +122,179 @@ header {
 .borde-lila      { border-color: #d8ccf1; }
 .borde-amarillo  { border-color: #fff0b3; }
 
-/* Info */
-.info-perfil h2 {
-  margin: 6px 0 2px;
-  font-size: 28px;
-  font-weight: 650;
-  color: #1a1a1a;
-}
-.info-perfil p {
-  margin: 0 0 4px;
-  font-size: 14px;
-  color: #666;
-}
-.rol {
-  font-style: italic;
-  font-size: 1.2rem;
+.perfil h2 {
+  margin-top: -2vh;
+  margin-bottom: 1vh;
+  font-size: 2rem;
   font-weight: 600;
-  color: #888;
-  margin-bottom: 10px;
+  color: #1a1a1a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* Parámetros (top 4) */
+.perfil p {
+  margin: 0.2vh 0;
+  font-size: 1rem;
+  color: #666;
+}
+
+.rol {
+  font-style: italic;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 1.5vh;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
 .parametros {
-  margin-top: 18px;
+  margin-top: 4vh;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
+
 .parametro {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
 }
+
 .nombre-parametro {
-  width: 120px;
-  font-weight: 700;
-  font-size: 14px;
-  text-align: left;
+  width: 40%;
+  font-weight: bold;
+  font-size: 1rem;
   color: #1a1a1a;
+  text-align: left;
 }
+
 .barra-base {
-  position: relative;
   flex: 1;
   height: 26px;
-  background: #f1f1f1;
+  background-color: #f1f1f1;
   border-radius: 999px;
-  overflow: hidden;
   display: flex;
   align-items: center;
+  overflow: hidden;
+  margin-left: 10px;
 }
+
 .barra {
   height: 100%;
   border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-weight: bold;
+  color: white;
+  position: relative;
 }
+
+.verde    { background-color: #7ce9b1; }
+.rojo     { background-color: #f7a1a1; }
+.azul     { background-color: #c7e1f6; }
+.dorado   { background-color: #fbeac3; }
+.lavanda  { background-color: #e4c7f5; }
+.coral    { background-color: #f7c8b2; }
+.oliva    { background-color: #d4eac1; }
+.lila     { background-color: #d8ccf1; }
+.amarillo { background-color: #fff0b3; }
+
 .porcentaje {
-  position: absolute;
-  right: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #333;   /* siempre legible aunque la barra esté baja */
+  font-size: 0.9rem;
+  color: #333;
+  margin-left: 6px;
+  font-weight: bold;
 }
 
-/* Colores pastel barras */
-.verde      { background-color: #7ce9b1; }
-.rojo       { background-color: #f7a1a1; }
-.azul       { background-color: #c7e1f6; }
-.dorado     { background-color: #fbeac3; }
-.lavanda    { background-color: #e4c7f5; }
-.coral      { background-color: #f7c8b2; }
-.oliva      { background-color: #d4eac1; }
-.lila       { background-color: #d8ccf1; }
-.amarillo   { background-color: #fff0b3; }
-
-/* Botones */
 .botones-dobles {
   display: flex;
+  justify-content: space-between;
+  margin-top: 5vh;
   gap: 10px;
-  margin-top: 20px;
 }
-.botones-dobles .boton-afinar,
-.botones-dobles .editar {
-  flex: 1;
-  padding: 10px 0;
-  font-size: 18px;
+
+.botones-dobles button,
+.botones-dobles .boton-afinar {
+  width: 50%;
+  padding: 1.2rem 0;
+  font-size: 1.2rem;
   font-weight: 600;
   border-radius: 999px;
   border: none;
   cursor: pointer;
-}
-.boton-afinar {
-  background: #f78ca2;
-  color: #fff;
-  text-decoration: none;
   text-align: center;
 }
-.editar {
-  background: #fff;
-  color: #4a4a4a;
-  border: 2px solid #ddd;
+
+.boton-afinar {
+  background-color: #f78ca2;
+  color: white;
+  text-decoration: none;
+  display: block;
 }
 
-/* Galería cuadrícula alineada al ancho */
-.galeria-privada {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;  /* dos columnas iguales */
-  gap: 12px;
+.editar {
+  background-color: white;
+  color: #4a4a4a;
+  border: 2px solid #dddddd;
+  box-shadow: 0px 1px 3px rgba(0,0,0,0.1);
 }
+
+.galeria-privada {
+  margin-top: 6vh;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  justify-items: center;
+}
+
 .foto-extra {
-  width: 100%;
-  aspect-ratio: 1 / 1;       /* siempre cuadradas */
-  background: #fcdede;
+  width: 45vw;
+  max-width: 180px;
+  height: 45vw;
+  max-height: 180px;
+  background-color: #fcdede;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
 }
+
 .foto-extra img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.9;
-  transition: 0.2s;
+  opacity: 0.8;
+  transition: 0.3s;
 }
+
 .foto-extra:hover img {
   opacity: 1;
 }
-.input-foto { display: none; }
-/* --- PARCHE: foto flotante sin tapar header/ nombre --- */
-header {
-  position: relative;
-  z-index: 5; /* el header por encima de todo */
+
+.input-foto {
+  display: none;
 }
 
-.perfil {
-  position: relative;
-  margin-top: 110px;   /* baja la tarjeta para dejar hueco a la foto */
-  padding-top: 110px;  /* deja espacio dentro para la foto flotante */
-}
+/* MEDIA QUERY PARA MÓVILES PEQUEÑOS */
+@media (max-width: 450px) {
+  .logo-afinia {
+    width: 100px;
+  }
 
-/* La “rosquilla” de la foto queda dentro de la tarjeta, centrada */
-.foto-perfil-progreso {
-  position: absolute;
-  top: -60px;                /* ajusta si quieres subir/bajar la foto */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;                /* por encima de la tarjeta, por debajo del header */
-}
+  .buscador {
+    font-size: 0.9rem;
+  }
 
-/* Tamaño/ borde de la foto */
-.foto-perfil {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  border: 8px solid #fff;    /* aro blanco para separar de la tarjeta */
-  object-fit: cover;
-  background: #fff;
+  .rol {
+    font-size: 1.1rem;
+  }
+
+  .barra-base {
+    height: 22px;
+  }
+
+  .porcentaje {
+    font-size: 0.8rem;
+  }
 }
