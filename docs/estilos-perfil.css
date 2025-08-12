@@ -226,3 +226,33 @@ header {
   opacity: 1;
 }
 .input-foto { display: none; }
+/* --- PARCHE: foto flotante sin tapar header/ nombre --- */
+header {
+  position: relative;
+  z-index: 5; /* el header por encima de todo */
+}
+
+.perfil {
+  position: relative;
+  margin-top: 110px;   /* baja la tarjeta para dejar hueco a la foto */
+  padding-top: 110px;  /* deja espacio dentro para la foto flotante */
+}
+
+/* La “rosquilla” de la foto queda dentro de la tarjeta, centrada */
+.foto-perfil-progreso {
+  position: absolute;
+  top: -60px;                /* ajusta si quieres subir/bajar la foto */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;                /* por encima de la tarjeta, por debajo del header */
+}
+
+/* Tamaño/ borde de la foto */
+.foto-perfil {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 8px solid #fff;    /* aro blanco para separar de la tarjeta */
+  object-fit: cover;
+  background: #fff;
+}
