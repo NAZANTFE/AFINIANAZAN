@@ -1,1 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil AfinIA</title>
+  <link rel="stylesheet" href="estilos-perfil.css"/>
+</head>
+<body>
+  <div class="contenedor">
+    <div class="logo-contenedor">
+      <img src="logo_afinia.png" alt="Logo AfinIA" class="logo-afinia" />
+    </div>
 
+    <header>
+      <input type="text" placeholder="Buscar usuarios..." class="buscador"/>
+      <button class="boton-plus">+</button>
+    </header>
+
+    <section class="perfil">
+      <div class="foto-perfil-progreso" id="borde-progreso">
+        <img src="foto_perfil.jpg" alt="Foto de perfil" class="foto-perfil" id="fotoPerfil" />
+      </div>
+
+      <div class="info-perfil">
+        <h2 id="nombreUsuario">JJ Martín</h2>
+        <p id="usuarioArroba">@jjmartin</p>
+        <p class="rol" id="rolUsuario">CEO y Desarrollador</p>
+
+        <div class="parametros"></div>
+
+        <div class="botones-dobles">
+          <a id="linkAfinar" href="afinar.html" class="boton-afinar">Afinar</a>
+          <button class="editar">Editar perfil</button>
+        </div>
+      </div>
+
+      <!-- GALERÍA -->
+      <div class="galeria-privada">
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 1" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 2" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 3" />
+        </label>
+        <label class="foto-extra">
+          <input type="file" accept="image/*" class="input-foto" onchange="cargarFoto(this)">
+          <img src="silueta.png" alt="Foto 4" />
+        </label>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ====== Auto-detección backend ======
+    const API_BASE = (() => {
+      const h = location.hostname;
+      if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
+      return "https://afinianazan-production-99ce.up.railway.app";
+    })();
+
+    // ====== userId (desde ?u= o localStorage) ======
+    function sanitizeId(id){ return (id||"").toLowerCase().trim().replace(/[^a-z0-9_-]/g,""); }
+    const params = new URLSearchParams(location.search);
+    let USER_ID = params.get("u") || localStorage.getItem("afinia_user_id") || "default";
+    USER_ID = sanitizeId(USER_ID) || "default";
+    localStorage.setItem("afinia_user_id", USER_ID);
+
+    // Mantén el userId cuando entras a afinar
+    const linkAfinar = document.getElementById("linkAfinar");
+    linkAfinar.href = `afinar.html?u=${encodeURIComponent(USER_ID)}`;
+
+    // Personalización de Carolina
+    const fotoPerfil = document.getElementById("fotoPerfil");
+    const nombreUsuario = document.getElementById("nombreUsuario");
+    const usuarioArroba = document.getElementById("usuarioArroba");
+    const rolUsuario = document.getElementById("rolUsuario");
+
+    if (USER_ID === "carolina") {
+      fotoPerfil.src = "carolina.jpg";
+      nombreUsuario.textContent = "Carolina";
+      usuarioArroba.textContent = "@carolina";
+      rolUsuario.textContent = "Perfil de prueba AfinIA";
+
+      fetch(`${API_BASE}/parametros?userId=carolina`)
+        .then(r => r.json())
+        .then(data => {
+          if (Object.keys(data).length === 0) {
+            const parametrosVacios = {
+              "Nivel AfinIA": 0,
+              "Inteligencia": 0,
+              "Simpatía": 0,
+              "Comunicación": 0,
+              "Carisma": 0,
+              "Creatividad": 0,
+              "Resolución de conflictos": 0,
+              "Iniciativa": 0,
+              "Organización": 0,
+              "Impulso personal": 0
+            };
+            fetch(`${API_BASE}/parametros?userId=carolina`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(parametrosVacios)
+            });
+          }
+        });
+
+      alert("💬 ¡Hola! Bienvenida a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
+    }
+
+    // Personalización de Hugo
+    if (USER_ID === "hugo") {
+      fotoPerfil.src = "hugo.jpg";
+      nombreUsuario.textContent = "Hugo";
+      usuarioArroba.textContent = "@hugo";
+      rolUsuario.textContent = "Perfil de prueba AfinIA";
+
+      fetch(`${API_BASE}/parametros?userId=hugo`)
+        .then(r => r.json())
+        .then(data => {
+          if (Object.keys(data).length === 0) {
+            const parametrosVacios = {
+              "Nivel AfinIA": 0,
+              "Inteligencia": 0,
+              "Simpatía": 0,
+              "Comunicación": 0,
+              "Carisma": 0,
+              "Creatividad": 0,
+              "Resolución de conflictos": 0,
+              "Iniciativa": 0,
+              "Organización": 0,
+              "Impulso personal": 0
+            };
+            fetch(`${API_BASE}/parametros?userId=hugo`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(parametrosVacios)
+            });
+          }
+        });
+
+      alert("💬 ¡Hola Hugo! Bienvenido a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO 'JJ' 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!");
+    }
+
+    // ====== Carga de parámetros del usuario ======
+    async function cargarParametrosDesdeAPI() {
+      try {
+        const response = await fetch(`${API_BASE}/parametros?userId=${encodeURIComponent(USER_ID)}`, { cache: "no-store" });
+        if (!response.ok) throw new Error("Backend no responde");
+        const datos = await response.json();
+
+        const sinNivel = Object.entries(datos).filter(([k]) => k !== "Nivel AfinIA");
+        const top4 = sinNivel.sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+        const colores = {
+          "Inteligencia": "verde",
+          "Simpatía": "rojo",
+          "Comunicación": "azul",
+          "Carisma": "dorado",
+          "Creatividad": "lavanda",
+          "Resolución de conflictos": "coral",
+          "Iniciativa": "oliva",
+          "Organización": "lila",
+          "Impulso personal": "amarillo"
+        };
+
+        const contenedor = document.querySelector('.parametros');
+        contenedor.innerHTML = '';
+
+        top4.forEach(([nombre, valor]) => {
+          const clase = colores[nombre] || 'gris';
+          contenedor.innerHTML += `
+            <div class="parametro">
+              <span class="nombre-parametro">${nombre}</span>
+              <div class="barra-base">
+                <div class="barra ${clase}" style="width:${Number(valor)||0}%"></div>
+              </div>
+              <span class="porcentaje-out">${Number(valor)||0}%</span>
+            </div>
+          `;
+        });
+
+        if (top4.length) {
+          const claseTop = colores[top4[0][0]];
+          const foto = document.querySelector('.foto-perfil');
+          foto.className = `foto-perfil borde-${claseTop}`;
+        }
+      } catch (err) {
+        console.error("Error cargando parámetros:", err);
+      }
+    }
+
+    // ====== Galería privada (localStorage) ======
+    const claveFotos = (u => `fotosPerfil_${u}`)(USER_ID);
+    function cargarFoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = input.parentElement.querySelector('img');
+          img.src = e.target.result;
+          img.style.opacity = 1;
+          guardarFotos();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+    function guardarFotos() {
+      const fotos = Array.from(document.querySelectorAll('.galeria-privada label img')).map(img => img.src);
+      localStorage.setItem(claveFotos, JSON.stringify(fotos));
+    }
+    function cargarFotosGuardadas() {
+      const fotosGuardadas = JSON.parse(localStorage.getItem(claveFotos) || "null");
+      if (fotosGuardadas) {
+        const imagenes = document.querySelectorAll('.galeria-privada label img');
+        fotosGuardadas.forEach((src, i) => {
+          if (imagenes[i]) {
+            imagenes[i].src = src;
+            imagenes[i].style.opacity = 1;
+          }
+        });
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      cargarParametrosDesdeAPI();
+      cargarFotosGuardadas();
+    });
+  </script>
+</body>
+</html>
