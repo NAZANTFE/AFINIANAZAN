@@ -45,7 +45,7 @@
       return "https://afinianazan-production-99ce.up.railway.app";
     })();
 
-    // ====== Gestión de userId (igual que perfil) ======
+    // ====== Gestión de userId ======
     function sanitizeId(id) {
       return id.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "");
     }
@@ -54,7 +54,7 @@
     USER_ID = sanitizeId(USER_ID);
     localStorage.setItem("afinia_user_id", USER_ID);
 
-    // ====== Historial de chat por usuario ======
+    // ====== Historial por usuario ======
     const CHAT_KEY = `afinia_chat_log_${USER_ID}`;
     const chatCont = document.getElementById("mensajes-chat");
     const input = document.getElementById("entradaUsuario");
@@ -104,10 +104,18 @@
     }
 
     // ====== Inicio ======
-    document.addEventListener("DOMContentLoaded", async ()=>{
+    document.addEventListener("DOMContentLoaded", async () => {
       let log = loadLog();
-      if(log.length === 0){
-        log = [{ role:"assistant", content:"Hola, corazón. Si te apetece, cuéntame algo pequeño de tu día y seguimos desde ahí." }];
+      if (log.length === 0) {
+        if (!localStorage.getItem(`afinia_profile_created_${USER_ID}`)) {
+          log = [{
+            role: "assistant",
+            content: "💬 ¡Hola! Bienvenido a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco geocéntrico 🤦🏼‍♂️)!"
+          }];
+          localStorage.setItem(`afinia_profile_created_${USER_ID}`, "true");
+        } else {
+          log = [{ role: "assistant", content: "Hola, corazón. Si te apetece, cuéntame algo pequeño de tu día y seguimos desde ahí." }];
+        }
         saveLog(log);
       }
       renderLog(log);
