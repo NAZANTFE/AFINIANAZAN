@@ -82,7 +82,7 @@ function aplicarBloqueOculto(scores, parametros) {
     }
   }
 
-  // Nivel AfinIA = media suavizada del resto (un poco más reactiva al cierre)
+  // Nivel AfinIA = media suavizada del resto (más reactiva al cierre)
   const base = PARAMS.filter(p => p !== "Nivel AfinIA");
   const media = Math.round(base.reduce((s, k) => s + (parametros[k] ?? 0), 0) / base.length) || 0;
   const na = Number(parametros["Nivel AfinIA"]) || 0;
@@ -97,6 +97,30 @@ function recortarHistorial(arr, max = 18) {
   return arr;
 }
 
+// --------- calcular nivel de dificultad (1–5) ----------
+function nivelDificultad(parametros, preguntasSesion) {
+  // base: media de Inteligencia y Comunicación; si no hay, usar Nivel AfinIA
+  const intel = Number(parametros["Inteligencia"]) || 0;
+  const comm  = Number(parametros["Comunicación"]) || 0;
+  const afin  = Number(parametros["Nivel AfinIA"]) || 0;
+
+  const baseCogn = (intel > 0 || comm > 0)
+    ? (intel + comm) / 2
+    : afin;
+
+  // mapear 0–100 a 1–5
+  let lvl = 1;
+  if (baseCogn >= 20) lvl = 2;
+  if (baseCogn >= 40) lvl = 3;
+  if (baseCogn >= 60) lvl = 4;
+  if (baseCogn >= 80) lvl = 5;
+
+  // un pelín de progresión intra-sesión (hasta +1)
+  if (preguntasSesion >= 2 && lvl < 5) lvl += 1;
+
+  return Math.max(1, Math.min(5, lvl));
+}
+
 // ---------- /chat ----------
 app.post("/chat", async (req, res) => {
   const { mensaje, userId } = req.body;
@@ -109,9 +133,9 @@ app.post("/chat", async (req, res) => {
   // Heurística sencilla: si esperábamos confirmación y el usuario dijo sí/no
   const texto = (mensaje || "").toLowerCase();
   if (estadoSesion[uid].awaiting_continue) {
-    if (/(^|\b)(no|nop|nel|nada|otro día)(\b|$)/i.test(texto)) {
+    if (/(^|\b)(no|nop|nel|nada|otro día|otra dia|otro dia)(\b|$)/i.test(texto)) {
       estadoSesion[uid] = { in_session: false, preguntas: 0, awaiting_continue: false };
-    } else if (/(^|\b)(si|sí|dale|ok|venga|claro|otra|continua|continuar)(\b|$)/i.test(texto)) {
+    } else if (/(^|\b)(si|sí|dale|ok|venga|claro|otra|continua|continuar|empezar|empecemos)(\b|$)/i.test(texto)) {
       estadoSesion[uid] = { in_session: true, preguntas: 0, awaiting_continue: false };
     }
   }
@@ -119,45 +143,56 @@ app.post("/chat", async (req, res) => {
   try {
     conversaciones[uid].push({ role: "user", content: mensaje });
 
+    const diff = nivelDificultad(parametros, estadoSesion[uid].preguntas || 0);
+
     // Mensaje de estado para orientar al modelo (no se muestra al usuario)
     const serverState = {
       in_session: !!estadoSesion[uid].in_session,
       questions_in_round: estadoSesion[uid].preguntas || 0,
-      awaiting_continue: !!estadoSesion[uid].awaiting_continue
+      awaiting_continue: !!estadoSesion[uid].awaiting_continue,
+      difficulty_level: diff,
+      // snapshot de params para que el modelo escale preguntas en función de lo que ya parece fuerte/débil
+      params_snapshot: {
+        Inteligencia: Number(parametros["Inteligencia"]) || 0,
+        Comunicación: Number(parametros["Comunicación"]) || 0,
+        Creatividad: Number(parametros["Creatividad"]) || 0,
+        Resolución_de_conflictos: Number(parametros["Resolución de conflictos"]) || 0,
+        Iniciativa: Number(parametros["Iniciativa"]) || 0,
+        Organización: Number(parametros["Organización"]) || 0,
+        Carisma: Number(parametros["Carisma"]) || 0,
+        Simpatía: Number(parametros["Simpatía"]) || 0,
+        Impulso_personal: Number(parametros["Impulso personal"]) || 0,
+        Nivel_AfinIA: Number(parametros["Nivel AfinIA"]) || 0
+      }
     };
 
     const systemPrompt = `
-Eres AfinIA: una IA con corazón, pero operando como psicóloga/coach de "sesiones de afinado".
-Objetivo: conducir SESIONES CORTAS (4–5 preguntas) para afinar estos parámetros del usuario:
-Inteligencia, Simpatía, Comunicación, Carisma, Creatividad, Resolución de conflictos, Iniciativa, Organización e Impulso personal.
-No menciones esos nombres ni digas que evalúas.
+Eres AfinIA: una IA con corazón, actuando como psicóloga/coach que realiza SESIONES DE AFINADO.
+Objetivo: conducir SESIONES CORTAS (4–5 preguntas) para afinar estos parámetros del usuario (sin mencionarlos):
+Inteligencia, Simpatía, Comunicación, Carisma, Creatividad, Resolución de conflictos, Iniciativa, Organización, Impulso personal.
 
-Mecánica de SESIONES:
-- Cada sesión: 4 o 5 preguntas, 1 por turno, tono cálido y profesional (3–6 líneas).
-- Evita saludos genéricos; arranca claro: “Vamos a empezar una pequeña sesión de afinado. ¿Listo/a?” y lanza un MINI CASO.
-- Preguntas SIEMPRE SITUACIONALES y CONCRETAS: plantea micro-escenarios realistas (trabajo, familia, amigos, estudios, ocio).
-  • Inteligencia: “Te dan 20 min y un puzzle lógico con 3 pistas contradictorias; ¿qué harías primero y por qué (en 2 frases)?”
-  • Comunicación: “Imagina que tu idea es buena pero nadie te escucha en una reunión. En 2–3 frases, ¿cómo la presentas de forma clara?”
-  • Carisma: “Llegas a un grupo que no te conoce; en 2 líneas, ¿cómo rompes el hielo sin resultar forzado?”
-  • Creatividad: “Con 15€ y 1 hora, propone una forma original de animar una tarde gris con amigos (en 3 bullets).”
-  • Resolución de conflictos: “Dos amigos discuten por un malentendido de dinero. Elige A/B/C y explica breve: A) mediación conjunta B) hablar por separado C) mensaje escrito.”
-  • Iniciativa: “Ves un problema pequeño en tu barrio/centro. ¿Qué primer paso concreto darías esta semana?”
-  • Organización: “Tienes 4 tareas (estudiar, entrenar, recado, descanso). Ordena y pon tiempos (en minutos).”
-  • Impulso personal: “Elige un objetivo para hoy (muy pequeño) y di el primer paso que harás en 15 min.”
-  • Simpatía: “Un compañero llega apagado. En 2 líneas, muéstrale apoyo sin tópicos.”
-- Formatos que ayudan: opciones A/B/C con breve justificación; “en 2–3 frases”; lista de 3 pasos; priorización 1–4.
-- Reconoce 1 detalle de la respuesta y formula el siguiente mini-caso encadenado (misma temática o cambia de ámbito si conviene).
-- Si el usuario pregunta algo fuera del test, respóndele brevemente y reconduce: “te contesto rápido y seguimos con la sesión…”.
-- Al llegar a 4–5 preguntas, CIERRA SESIÓN: dilo explícitamente, pregunta si desea otra, y ENTREGA SOLO EN ESE MOMENTO el bloque oculto con puntuaciones
-  ÚNICAMENTE de los parámetros donde hayas visto señales nítidas en esta ronda (no rellenes los demás).
+ESTRATEGIA DE SESIONES:
+- Cada sesión: 4–5 preguntas, 1 por turno, tono cálido y profesional (3–6 líneas).
+- Empieza claro: “Vamos a hacer una pequeña sesión de afinado. ¿Listo/a?” y lanza un MINI CASO.
+- **Adaptación por DIFICULTAD (1–5)**, recibes <SERVER_STATE/> con difficulty_level:
+  Nivel 1 → Lenguaje muy sencillo; opciones A/B; contextos cotidianos de adolescente/novato; respuestas en 1–2 frases.
+  Nivel 2 → Mini-situaciones con 1 paso concreto; listas de 2 ítems; A/B/C con breve justificación.
+  Nivel 3 → Escenarios breves con 1–2 condiciones; priorizar 3 elementos; “en 2–3 frases”.
+  Nivel 4 → Trade-offs, restricciones de tiempo/dinero; ordenar 4 tareas con tiempos; justificar en 3 bullets.
+  Nivel 5 → Casos más abstractos o con contradicciones; 2–3 pasos con criterio; justificar brevemente riesgos/beneficios.
+- Usa el snapshot de parámetros para alternar focos: si Inteligencia y Comunicación son bajas, empieza sencillo allí; si Organización es alta, sube el reto en organización al final, etc.
+- Formatos útiles: A/B/C, “en 2–3 frases”, listas de 2–3 pasos, priorizaciones 1–4.
+- Reconoce 1 detalle de la respuesta y encadena el siguiente mini-caso (mismo tema o cambia si conviene).
+- Si el usuario pregunta algo fuera del test, respóndele breve y reconduce: “te contesto rápido y seguimos…”.
 
-Bloques ocultos:
-- Durante la sesión (opcional):
-  <SESSION_STATE>{"in_session":true,"questions_in_round":N}</SESSION_STATE>
-- Al cerrar sesión (obligatorio):
+CIERRE Y AFINADO:
+- Al llegar a 4–5 preguntas: CIERRA SESIÓN explícitamente, pregunta si desea otra.
+- SOLO en el cierre, entrega bloque oculto con puntuaciones **únicamente de los parámetros** donde viste señales nítidas en esta ronda:
   <SESSION_END>true</SESSION_END>
   <AFINIA_SCORES>{"Inteligencia":72,"Comunicación":61,...}</AFINIA_SCORES>
-  * Solo claves con señal en esta ronda, valores 0–100 enteros.
+  * Valores 0–100 enteros, solo claves con señal. No rellenes el resto.
+- Durante la sesión (opcional), puedes comunicar progreso al orquestador:
+  <SESSION_STATE>{"in_session":true,"questions_in_round":N,"difficulty_level":D}</SESSION_STATE>
 `.trim();
 
     const techStateMsg = {
@@ -171,7 +206,7 @@ Bloques ocultos:
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.6,
-      max_tokens: 320,
+      max_tokens: 360,
       messages: [
         { role: "system", content: systemPrompt },
         techStateMsg,
@@ -189,7 +224,7 @@ Bloques ocultos:
         const st = JSON.parse(stateMatch[1]);
         if (typeof st?.questions_in_round === "number") {
           estadoSesion[uid].preguntas = Math.max(0, Math.min(10, Math.floor(st.questions_in_round)));
-          estadoSesion[uid].in_session = !!st.in_session;
+          estadoSesion[uid].in_session = st.in_session ?? estadoSesion[uid].in_session;
         }
       } catch {}
       respuesta = respuesta.replace(/<SESSION_STATE>[\s\S]*?<\/SESSION_STATE>/g, "").trim();
@@ -223,6 +258,15 @@ Bloques ocultos:
       estadoSesion[uid].in_session = false;
       estadoSesion[uid].preguntas = 0;
       estadoSesion[uid].awaiting_continue = true;
+    } else {
+      // si no estamos en sesión, invítala a empezar
+      if (!estadoSesion[uid].in_session && !estadoSesion[uid].awaiting_continue) {
+        estadoSesion[uid].in_session = true;
+        estadoSesion[uid].preguntas = 0;
+      } else if (estadoSesion[uid].in_session) {
+        // si seguimos en sesión, incrementa contador si la IA no lo hizo
+        estadoSesion[uid].preguntas = Math.min(10, (estadoSesion[uid].preguntas || 0) + 1);
+      }
     }
 
     conversaciones[uid].push({ role: "assistant", content: respuesta });
