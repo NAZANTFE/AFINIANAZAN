@@ -31,6 +31,36 @@ const PARAMS = [
 // Historial de conversaciones por usuario (solo en RAM de la instancia)
 const conversaciones = {};
 
+// ===== Normalización de claves de la IA (acentos / variantes) =====
+const quitarAcentos = (s="") =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+
+const CANON_MAP = (() => {
+  const pares = [
+    ["Inteligencia", "inteligencia"],
+    ["Simpatía", "simpatia"],
+    ["Comunicación", "comunicacion"],
+    ["Carisma", "carisma"],
+    ["Creatividad", "creatividad"],
+    ["Resolución de conflictos", "resolucion de conflictos"],
+    ["Iniciativa", "iniciativa"],
+    ["Organización", "organizacion"],
+    ["Impulso personal", "impulso personal"],
+    ["Nivel AfinIA", "nivel afinia"],
+  ];
+  const m = new Map();
+  for (const [canon, base] of pares) {
+    m.set(base, canon); // sin tildes exacto
+    m.set(quitarAcentos(canon).toLowerCase(), canon); // por si acaso
+  }
+  return m;
+})();
+
+function canonizaClave(k) {
+  const key = quitarAcentos(String(k||"")).toLowerCase().trim();
+  return CANON_MAP.get(key) || null;
+}
+
 // Ruta para obtener el archivo del usuario
 function getUserFile(userId) {
   const safeId = userId?.toString().replace(/[^a-z0-9_-]/gi, "") || "default";
@@ -56,7 +86,7 @@ function guardarParametros(userId, obj) {
 }
 
 /* ---------- Detección de indicios por parámetro ----------
-   Muy simple: si el último mensaje del usuario contiene palabras
+   Simple: si el último mensaje del usuario contiene palabras
    relacionadas con el parámetro, consideramos que hay señal. */
 function hayIndicios(param, texto = "") {
   if (!texto) return false;
@@ -64,31 +94,31 @@ function hayIndicios(param, texto = "") {
 
   const dic = {
     "Inteligencia": [
-      "analic", "lógica", "razon", "deduc", "estudi", "aprend", "investig", "resolver"
+      "analic", "lógica", "logica", "razon", "deduc", "estudi", "aprend", "investig", "resolver"
     ],
     "Simpatía": [
-      "amable", "simpát", "caer bien", "amig", "agrad", "empat", "cariño", "sonrisa"
+      "amable", "simpát", "simpat", "caer bien", "amig", "agrad", "empat", "cariño", "carino", "sonrisa"
     ],
     "Comunicación": [
-      "hablé", "convers", "explic", "present", "comuni", "escuchar", "llamé", "mensaje"
+      "hablé", "hable", "convers", "explic", "present", "comuni", "escuchar", "llamé", "llame", "mensaje"
     ],
     "Carisma": [
-      "carisma", "encanto", "presencia", "causar impresión", "lideré", "inspiré", "inspirar"
+      "carisma", "encanto", "presencia", "causar impresión", "impresion", "lideré", "lidere", "lider", "inspiré", "inspire", "inspirar"
     ],
     "Creatividad": [
-      "creativ", "dibuj", "diseñ", "idea", "imagin", "innov", "improvis"
+      "creativ", "dibuj", "diseñ", "disen", "idea", "imagin", "innov", "improvis"
     ],
     "Resolución de conflictos": [
-      "conflic", "discut", "negoci", "medi", "resolver problema", "acuerdo", "tensión", "pelea", "problema"
+      "conflic", "discut", "negoci", "medi", "resolver problema", "acuerdo", "tensión", "tension", "pelea", "problema"
     ],
     "Iniciativa": [
-      "iniciativa", "propuse", "empecé", "lancé", "tomé la delantera", "me ofrecí", "me adelanté"
+      "iniciativa", "propuse", "empecé", "empece", "lancé", "lance", "lanzar", "tomé la delantera", "me ofrecí", "ofreci", "me adelanté", "adelante"
     ],
     "Organización": [
       "organ", "planifi", "agenda", "orden", "priori", "lista", "calend"
     ],
     "Impulso personal": [
-      "motiv", "constancia", "disciplina", "ganas", "esfuerzo", "persist", "energía", "impulso"
+      "motiv", "constancia", "disciplina", "ganas", "esfuerzo", "persist", "energía", "energia", "impulso"
     ]
   };
 
@@ -96,60 +126,85 @@ function hayIndicios(param, texto = "") {
   return palabras.some(p => t.includes(p));
 }
 
-/* ---------- Ajuste de parámetros: más rápido con evidencia ----------
-   Sube SOLO donde hay indicios en el último mensaje.
-   Diales subidos respecto a la versión anterior. */
-function aplicarBloqueOculto(scores, parametros, ultimoMensajeUsuario) {
+/* ---------- Ajuste de parámetros: más rápido con evidencia,
+             y fallback MUY suave si no hay indicios ----------
+*/
+function aplicarBloqueOculto(scoresRaw, parametros, ultimoMensajeUsuario) {
   let cambios = false;
 
-  // Diales (más ágiles)
-  const MIN_SIGNAL = 3;               // antes 4 → detecta señales más débiles
-  const MAX_PARAMS_PER_TURN = 4;      // antes 3 → puede mover hasta 4 con evidencia
-  const CAP_UP = 12;                  // antes 10 → subida máxima por turno
+  // Diales
+  const MIN_SIGNAL = 3;               // delta mínimo para mover
+  const MAX_PARAMS_PER_TURN = 4;      // límite de parámetros movidos por turno
+  const CAP_UP = 12;                  // subida máxima por turno
   const CAP_DN = 4;                   // bajada máxima por turno
 
-  // 1) Solo claves válidas (no tocamos "Nivel AfinIA" directamente)
-  let entradas = Object.entries(scores || {}).filter(([k, v]) =>
-    PARAMS.includes(k) && k !== "Nivel AfinIA" && Number.isFinite(Number(v))
-  );
-
-  // 2) Filtrar por INDICIOS en el último mensaje del usuario
-  entradas = entradas.filter(([k]) => hayIndicios(k, ultimoMensajeUsuario));
-
-  if (entradas.length > 0) {
-    // 3) Evaluar deltas y descartar microcambios sin valor
-    const conDelta = entradas
-      .map(([k, v]) => {
-        const target = Math.max(0, Math.min(100, Math.round(Number(v))));
-        const actual = Math.max(0, Math.min(100, Number(parametros[k]) || 0));
-        const delta = Math.abs(target - actual);
-        return { k, target, actual, delta, dirUp: target > actual };
-      })
-      .filter(x => x.delta >= MIN_SIGNAL);
-
-    // 4) Priorizamos mayor delta y limitamos cuántos mover
-    conDelta.sort((a, b) => b.delta - a.delta);
-    const seleccion = conDelta.slice(0, MAX_PARAMS_PER_TURN);
-
-    // 5) Ajuste más rápido pero controlado
-    for (const { k, target, actual, dirUp } of seleccion) {
-      let factor = 0.13;                    // base (más vivo)
-      if (actual > 70 && dirUp) factor = 0.08; // cuesta más si ya es alto
-      if (actual < 30 && dirUp) factor = 0.20; // sube más fácil si está bajo
-
-      const ema = Math.round(actual * (1 - factor) + target * factor);
-      const capUp = Math.min(actual + CAP_UP, 100);
-      const capDn = Math.max(actual - CAP_DN, 0);
-      const nuevo = Math.max(Math.min(ema, capUp), capDn);
-
-      if (nuevo !== actual) {
-        parametros[k] = nuevo;
-        cambios = true;
-      }
+  // 0) Canonizar claves del modelo → nombres tuyos exactos
+  const scores = {};
+  for (const [k, v] of Object.entries(scoresRaw || {})) {
+    const canon = canonizaClave(k);
+    if (canon && canon !== "Nivel AfinIA" && Number.isFinite(Number(v))) {
+      scores[canon] = Number(v);
     }
   }
 
-  // 6) Nivel AfinIA = media suave del resto (un poco más reactivo)
+  // 1) Solo claves válidas
+  let entradas = Object.entries(scores);
+
+  // 2) Filtrar por INDICIOS en el último mensaje
+  let withSignal = entradas.filter(([k]) => hayIndicios(k, ultimoMensajeUsuario));
+
+  // Si no hay señal, probamos un fallback muy suave sobre el mayor delta
+  const usarFallbackSuave = withSignal.length === 0;
+
+  // 3) Conjunto a evaluar (con señal o, si no hay, todas pero luego limitamos a 1)
+  const baseEval = (usarFallbackSuave ? entradas : withSignal).map(([k, v]) => {
+    const target = Math.max(0, Math.min(100, Math.round(Number(v))));
+    const actual = Math.max(0, Math.min(100, Number(parametros[k]) || 0));
+    const delta = Math.abs(target - actual);
+    return { k, target, actual, delta, dirUp: target > actual };
+  });
+
+  // Nada que mover
+  if (baseEval.length === 0) {
+    // Aún así, recalculamos Nivel AfinIA suavemente
+    recalcularNivel(parametros);
+    return false;
+  }
+
+  // 4) Ordenar por delta
+  baseEval.sort((a, b) => b.delta - a.delta);
+
+  // 5) Selección final
+  const seleccion = usarFallbackSuave
+    ? baseEval.slice(0, 1)                   // sin indicios: mueve SOLO el mayor delta un poco
+    : baseEval
+        .filter(x => x.delta >= MIN_SIGNAL)  // con indicios: respeta delta mínimo
+        .slice(0, MAX_PARAMS_PER_TURN);
+
+  // 6) Aplicar ajustes
+  for (const { k, target, actual, dirUp } of seleccion) {
+    let factor = usarFallbackSuave ? 0.06 : 0.13;        // fallback más suave; con señal más alegre
+    if (actual > 70 && dirUp) factor = usarFallbackSuave ? 0.04 : 0.08;
+    if (actual < 30 && dirUp) factor = usarFallbackSuave ? 0.10 : 0.20;
+
+    const ema = Math.round(actual * (1 - factor) + target * factor);
+    const capUp = Math.min(actual + CAP_UP, 100);
+    const capDn = Math.max(actual - CAP_DN, 0);
+    const nuevo = Math.max(Math.min(ema, capUp), capDn);
+
+    if (nuevo !== actual) {
+      parametros[k] = nuevo;
+      cambios = true;
+    }
+  }
+
+  // 7) Nivel AfinIA = media suave del resto (un poco más reactivo)
+  cambios = recalcularNivel(parametros) || cambios;
+
+  return cambios;
+}
+
+function recalcularNivel(parametros) {
   const base = PARAMS.filter(p => p !== "Nivel AfinIA");
   const media = Math.round(
     base.reduce((s, k) => s + (parametros[k] ?? 0), 0) / base.length
@@ -159,10 +214,9 @@ function aplicarBloqueOculto(scores, parametros, ultimoMensajeUsuario) {
   const nivelNuevo = Math.round(actualNivel * 0.88 + media * 0.12); // más reactivo
   if (nivelNuevo !== actualNivel) {
     parametros["Nivel AfinIA"] = nivelNuevo;
-    cambios = true;
+    return true;
   }
-
-  return cambios;
+  return false;
 }
 
 // ---------- rutas ----------
