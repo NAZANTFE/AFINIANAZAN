@@ -66,7 +66,7 @@
 
     function renderLog(log){
       chatCont.innerHTML = "";
-      for(const m of log){
+      for (const m of log){
         const div = document.createElement("div");
         div.className = m.role === "assistant" ? "mensaje-bot" : "mensaje-usuario";
         div.textContent = m.content;
@@ -79,11 +79,11 @@
       let i = 0;
       div.textContent = "";
       (function tick(){
-        if(i < texto.length){
+        if (i < texto.length){
           div.textContent += texto.charAt(i++);
           chatCont.scrollTop = chatCont.scrollHeight;
           setTimeout(tick, velocidad);
-        } else if(typeof done === "function"){ done(); }
+        } else if (typeof done === "function"){ done(); }
       })();
     }
 
@@ -110,7 +110,7 @@
         if (!localStorage.getItem(`afinia_profile_created_${USER_ID}`)) {
           log = [{
             role: "assistant",
-            content: "💬 ¡Hola! Bienvenido a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco geocéntrico 🤦🏼‍♂️)!"
+            content: "💬 ¡Hola! Bienvenido a tu perfil de prueba en AfinIA 🌸. Aquí podrás charlar conmigo, descubrir tus parámetros y ver cómo evolucionan. ¡Explora sin miedo, que este perfil es solo para probar y ayudar a su CEO “JJ” 🙄 (es que es un poco egocéntrico 🤦🏼‍♂️)!"
           }];
           localStorage.setItem(`afinia_profile_created_${USER_ID}`, "true");
         } else {
@@ -125,7 +125,7 @@
     // ====== Envío ======
     async function enviar(){
       const texto = input.value.trim();
-      if(!texto || esperando) return;
+      if (!texto || esperando) return;
 
       let log = loadLog();
       log.push({ role:"user", content:texto });
@@ -136,10 +136,11 @@
       esperando = true; btn.disabled = true; input.disabled = true;
 
       try{
-        const res = await fetch(`${API_BASE}/chat?userId=${encodeURIComponent(USER_ID)}`, {
+        // 💡 Cambio clave: enviar userId en el BODY (no en la query)
+        const res = await fetch(`${API_BASE}/chat`, {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ mensaje: texto })
+          body: JSON.stringify({ mensaje: texto, userId: USER_ID })
         });
         const data = await res.json();
         const respuesta = data.respuesta || "…";
