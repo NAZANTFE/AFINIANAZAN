@@ -62,8 +62,8 @@ function aplicarBloqueOculto(scores, parametros) {
   for (const [k, v] of Object.entries(scores || {})) {
     if (!PARAMS.includes(k)) continue;
 
-    // Evita que suba todo a la vez por respuestas cortas
-    if (Math.abs(v - (parametros[k] ?? 0)) < 5 && v <= parametros[k]) continue;
+    // Solo actualiza si hay un cambio real detectado (> 0.5 de diferencia)
+    if (Math.abs(v - (parametros[k] ?? 0)) < 0.5) continue;
 
     let factor = 0.03;
 
