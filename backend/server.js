@@ -93,11 +93,7 @@ function aplicarBloqueOculto(scores, parametros) {
 
 // --------- util: recortar historial para ahorrar tokens ---------
 function recortarHistorial(arr, max = 18) {
-  if (arr.length > max) {
-    // Conserva el system + últimos turnos
-    // (como guardamos system fuera, aquí solo truncamos la cola)
-    return arr.slice(arr.length - max);
-  }
+  if (arr.length > max) return arr.slice(arr.length - max);
   return arr;
 }
 
@@ -137,19 +133,28 @@ Inteligencia, Simpatía, Comunicación, Carisma, Creatividad, Resolución de con
 No menciones esos nombres ni digas que evalúas.
 
 Mecánica de SESIONES:
-- Cada sesión: 4 o 5 preguntas, 1 por turno, claras, concretas y basadas en lo que el usuario acaba de decir.
-- Si el usuario habla de otro tema, respóndele brevemente y reconduce a la sesión.
-- Tono cálido y profesional. 3–6 líneas. No te despidas hasta cerrar sesión o si el usuario rechaza continuar.
-- Al llegar a 4–5 preguntas, CIERRA SESIÓN: di explícitamente que cierras la ronda con una frase positiva,
-  pregunta si desea otra, y ENTREGA SOLO EN ESE MOMENTO el bloque oculto con puntuaciones de los parámetros DONDE VISTE SEÑALES CLARAS.
-  No incluyas parámetros sin evidencia en esta ronda.
-- Si el usuario dice que NO quiere otra: despídete con cariño breve ("nos vemos en la siguiente sesión").
-- Si el usuario dice que SÍ: inicia nueva sesión desde 0 y vuelve a preguntar (no des puntuaciones hasta cerrar esa nueva sesión).
+- Cada sesión: 4 o 5 preguntas, 1 por turno, tono cálido y profesional (3–6 líneas).
+- Evita saludos genéricos; arranca claro: “Vamos a empezar una pequeña sesión de afinado. ¿Listo/a?” y lanza un MINI CASO.
+- Preguntas SIEMPRE SITUACIONALES y CONCRETAS: plantea micro-escenarios realistas (trabajo, familia, amigos, estudios, ocio).
+  • Inteligencia: “Te dan 20 min y un puzzle lógico con 3 pistas contradictorias; ¿qué harías primero y por qué (en 2 frases)?”
+  • Comunicación: “Imagina que tu idea es buena pero nadie te escucha en una reunión. En 2–3 frases, ¿cómo la presentas de forma clara?”
+  • Carisma: “Llegas a un grupo que no te conoce; en 2 líneas, ¿cómo rompes el hielo sin resultar forzado?”
+  • Creatividad: “Con 15€ y 1 hora, propone una forma original de animar una tarde gris con amigos (en 3 bullets).”
+  • Resolución de conflictos: “Dos amigos discuten por un malentendido de dinero. Elige A/B/C y explica breve: A) mediación conjunta B) hablar por separado C) mensaje escrito.”
+  • Iniciativa: “Ves un problema pequeño en tu barrio/centro. ¿Qué primer paso concreto darías esta semana?”
+  • Organización: “Tienes 4 tareas (estudiar, entrenar, recado, descanso). Ordena y pon tiempos (en minutos).”
+  • Impulso personal: “Elige un objetivo para hoy (muy pequeño) y di el primer paso que harás en 15 min.”
+  • Simpatía: “Un compañero llega apagado. En 2 líneas, muéstrale apoyo sin tópicos.”
+- Formatos que ayudan: opciones A/B/C con breve justificación; “en 2–3 frases”; lista de 3 pasos; priorización 1–4.
+- Reconoce 1 detalle de la respuesta y formula el siguiente mini-caso encadenado (misma temática o cambia de ámbito si conviene).
+- Si el usuario pregunta algo fuera del test, respóndele brevemente y reconduce: “te contesto rápido y seguimos con la sesión…”.
+- Al llegar a 4–5 preguntas, CIERRA SESIÓN: dilo explícitamente, pregunta si desea otra, y ENTREGA SOLO EN ESE MOMENTO el bloque oculto con puntuaciones
+  ÚNICAMENTE de los parámetros donde hayas visto señales nítidas en esta ronda (no rellenes los demás).
 
 Bloques ocultos:
-- Durante la sesión (sin cerrar), puedes incluir de forma opcional:
+- Durante la sesión (opcional):
   <SESSION_STATE>{"in_session":true,"questions_in_round":N}</SESSION_STATE>
-- Al cerrar la sesión DEBES incluir:
+- Al cerrar sesión (obligatorio):
   <SESSION_END>true</SESSION_END>
   <AFINIA_SCORES>{"Inteligencia":72,"Comunicación":61,...}</AFINIA_SCORES>
   * Solo claves con señal en esta ronda, valores 0–100 enteros.
@@ -177,7 +182,7 @@ Bloques ocultos:
     let respuesta = completion.choices[0].message.content || "";
 
     // === Parsear bloques opcionales/obligatorios ===
-    // 1) SESSION_STATE (opcional) → actualiza contador local si viene
+    // 1) SESSION_STATE (opcional)
     const stateMatch = respuesta.match(/<SESSION_STATE>([\s\S]*?)<\/SESSION_STATE>/);
     if (stateMatch) {
       try {
@@ -187,19 +192,17 @@ Bloques ocultos:
           estadoSesion[uid].in_session = !!st.in_session;
         }
       } catch {}
-      // No mostramos la etiqueta al usuario:
       respuesta = respuesta.replace(/<SESSION_STATE>[\s\S]*?<\/SESSION_STATE>/g, "").trim();
     }
 
-    // 2) SESSION_END (obligatorio solo en cierre)
+    // 2) SESSION_END
     const endMatch = respuesta.match(/<SESSION_END>([\s\S]*?)<\/SESSION_END>/);
     const isSessionEnd = endMatch ? /true/i.test(endMatch[1].trim()) : false;
     if (endMatch) {
-      // ocultar del texto al usuario
       respuesta = respuesta.replace(/<SESSION_END>[\s\S]*?<\/SESSION_END>/g, "").trim();
     }
 
-    // 3) AFINIA_SCORES (solo si SESSION_END)
+    // 3) AFINIA_SCORES (solo si cierre)
     if (isSessionEnd) {
       const scoresMatch = respuesta.match(/<AFINIA_SCORES>([\s\S]*?)<\/AFINIA_SCORES>/);
       if (scoresMatch) {
@@ -213,17 +216,15 @@ Bloques ocultos:
         } catch (e) {
           console.warn("Bloque AFINIA_SCORES inválido:", e.message);
         }
-        // ocultar del texto al usuario
         respuesta = respuesta.replace(/<AFINIA_SCORES>[\s\S]*?<\/AFINIA_SCORES>/g, "").trim();
       }
 
-      // Tras cerrar, quedamos a la espera de confirmación para otra sesión
+      // Tras cerrar, esperar confirmación para otra sesión
       estadoSesion[uid].in_session = false;
       estadoSesion[uid].preguntas = 0;
       estadoSesion[uid].awaiting_continue = true;
     }
 
-    // Añadir respuesta al historial visible
     conversaciones[uid].push({ role: "assistant", content: respuesta });
 
     res.json({ respuesta });
